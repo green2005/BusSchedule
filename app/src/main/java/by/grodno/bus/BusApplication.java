@@ -4,16 +4,14 @@ import android.app.Application;
 
 import by.grodno.bus.db.DBManager;
 
-public class BusApplication  extends Application{
+public class BusApplication extends Application {
     private DBManager mDBManager;
 
-    public void setDBManager(DBManager manager){
+    public void setDBManager(DBManager manager) {
         mDBManager = manager;
     }
 
-    public DBManager getDBManager(){
+    public DBManager getDBManager() {
         return mDBManager;
     }
-
-
 }

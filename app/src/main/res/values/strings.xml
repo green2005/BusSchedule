@@ -8,5 +8,6 @@
     <string name="action_settings">Настройки</string>
     <string name="check_inet_connection">Проверьте подключение к Интернет</string>
     <string name="update_error">"Ошибка обновления"</string>
+    <string name="ok">OK</string>
 
 </resources>

@@ -56,11 +56,6 @@ public class DBUpdater {
         return inbox;
     }
 
-    public String getDBfileName() {
-        File f = mContext.getDatabasePath(DBManager.DBNAME);
-        return f.getAbsolutePath();
-    }
-
     private Message getLastMessage(Folder folder, String lastUpdated, UpdateListener listener) {
         try {
             javax.mail.Message[] messages = folder.getMessages();//
@@ -158,8 +153,8 @@ public class DBUpdater {
                     postSuccess(listener, handler, null);
                     return;
                 }
-                String newFileName = getDBfileName() + ".tmp";
-                String dbFileName = getDBfileName();
+                String newFileName = DBManager.getDBfileName(mContext) + ".tmp";
+                String dbFileName = DBManager.getDBfileName(mContext);
                 OutputStream stream = new FileOutputStream(newFileName);
                 Multipart multipart = (Multipart) msg.getContent();
 
