@@ -1,16 +1,19 @@
 package by.grodno.bus;
 
-import android.app.ActionBar;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import by.grodno.bus.db.DBManager;
+
 public class MainActivity extends ActionBarActivity implements android.support.v7.app.ActionBar.TabListener {
-    ViewPager mViewPager;
-    android.support.v7.app.ActionBar mActionBar;
+    private ViewPager mViewPager;
+    private ActionBar mActionBar;
+    private DBManager mDBManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +50,14 @@ public class MainActivity extends ActionBarActivity implements android.support.v
             tab.setTabListener(this);
             mActionBar.addTab(tab);
         }
+        DBManager dbManager = new DBManager(this);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 
     @Override

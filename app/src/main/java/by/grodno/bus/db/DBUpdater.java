@@ -3,6 +3,7 @@ package by.grodno.bus.db;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
 
 import com.sun.mail.pop3.POP3SSLStore;
 
@@ -26,7 +27,7 @@ import by.grodno.bus.R;
 public class DBUpdater {
     String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
     Context mContext;
-    Store store  ;
+    Store store;
 
 
     public DBUpdater(Context context) {
@@ -34,8 +35,8 @@ public class DBUpdater {
     }
 
     private Folder getYandexInboxFolder() throws Exception {
-        Properties pop3Props ;
-        Session session  ;
+        Properties pop3Props;
+        Session session;
 
         String host = "pop.yandex.ru";
         String user = "green2005update";
@@ -106,29 +107,55 @@ public class DBUpdater {
         return null;
     }
 
-    private void checkScheduleUpdateExists(UpdateListener listener, String lastUpdated){
-        
-
-    }
-
-    private void updateSchedule(UpdateListener listener, String lastUpdated) {
+    private void checkScheduleUpdateExists(final UpdateListener listener, String lastUpdated, Handler handler) {
         try {
             Folder folder;
             try {
                 folder = getYandexInboxFolder();
-            } catch (Exception e) {
-                listener.onError(e.getMessage());
+            } catch (final Exception e) {
+                postError(listener, handler, e.getMessage());
                 return;
             }
-
             if (folder == null) {
-                listener.onError(R.string.check_inet_connection);
+                postError(listener, handler, R.string.check_inet_connection);
                 return;
             }
             try {
                 Message msg = getLastMessage(folder, lastUpdated, listener);
                 if (msg == null) {
-                    listener.onSuccess(null);
+                    postSuccess(listener, handler, null);
+                } else {
+                    final String updated = msg.getSubject().replace("zip", "");
+                    postSuccess(listener, handler, updated);
+                }
+            } finally {
+                folder.close(false);
+                if (store != null)
+                    store.close();
+            }
+        } catch (Exception e) {
+            postError(listener, handler, R.string.update_error);
+        }
+    }
+
+    private void updateSchedule(final UpdateListener listener, String lastUpdated, Handler handler) {
+        try {
+            Folder folder;
+            try {
+                folder = getYandexInboxFolder();
+            } catch (final Exception e) {
+                postError(listener, handler, e.getMessage());
+                return;
+            }
+
+            if (folder == null) {
+                postError(listener, handler, R.string.check_inet_connection);
+                return;
+            }
+            try {
+                Message msg = getLastMessage(folder, lastUpdated, listener);
+                if (msg == null) {
+                    postSuccess(listener, handler, null);
                     return;
                 }
                 String newFileName = getDBfileName() + ".tmp";
@@ -154,10 +181,10 @@ public class DBUpdater {
                     File tmpfile = new File(newFileName);
                     File dbFile = new File(dbFileName);
                     if (tmpfile.renameTo(dbFile)) {
-                        String updatedDate = msg.getSubject().replace("zip", "");
-                        listener.onSuccess(updatedDate);
+                        final String updatedDate = msg.getSubject().replace("zip", "");
+                        postSuccess(listener, handler, updatedDate);
                     } else {
-                        listener.onError(R.string.update_error);
+                        postError(listener, handler, R.string.update_error);
                     }
                 } else {
                     try {
@@ -166,17 +193,43 @@ public class DBUpdater {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    listener.onError(R.string.update_error);
+                    postError(listener, handler, R.string.update_error);
                 }
-            } finally
-            {
+            } finally {
                 folder.close(false);
                 if (store != null)
                     store.close();
             }
         } catch (Exception e) {
-            listener.onError(R.string.update_error);
+            postError(listener, handler, e.getMessage());
         }
+    }
+
+    private void postError(final UpdateListener listener, final Handler handler, final String error) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                listener.onError(error);
+            }
+        });
+    }
+
+    private void postError(final UpdateListener listener, final Handler handler, final int stringResId) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                listener.onError(stringResId);
+            }
+        });
+    }
+
+    private void postSuccess(final UpdateListener listener, final Handler handler, final String updateDate) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                listener.onSuccess(updateDate);
+            }
+        });
     }
 
     private boolean checkIsDbCorrect(String fileName) {
@@ -203,19 +256,21 @@ public class DBUpdater {
 
 
     public void checkUpdateExists(final UpdateListener listener, final String lastUpdated) {
-       new Thread(new Runnable() {
-           @Override
-           public void run() {
-               checkScheduleUpdateExists(listener, lastUpdated);
-           }
-       }).start();
-    }
-
-    public void updateDB(final UpdateListener listener, final String lastUpdated) {
+        final Handler handler = new Handler();
         new Thread(new Runnable() {
             @Override
             public void run() {
-                updateSchedule(listener, lastUpdated);
+                checkScheduleUpdateExists(listener, lastUpdated, handler);
+            }
+        }).start();
+    }
+
+    public void updateDB(final UpdateListener listener, final String lastUpdated) {
+        final Handler handler = new Handler();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                updateSchedule(listener, lastUpdated, handler);
             }
         }).start();
     }
