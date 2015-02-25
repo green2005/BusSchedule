@@ -1,9 +1,11 @@
 package by.grodno.bus.db;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
+import android.text.TextUtils;
 
 import com.sun.mail.pop3.POP3SSLStore;
 
@@ -25,10 +27,11 @@ import by.grodno.bus.R;
 
 
 public class DBUpdater {
-    String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+    private static final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+    private static final String MESSAGE_PREFIX = "zip";
     Context mContext;
-    Store store;
-
+    Store mStore;
+    ProgressDialog mProgressDialog;
 
     public DBUpdater(Context context) {
         mContext = context;
@@ -49,9 +52,9 @@ public class DBUpdater {
         URLName url = new URLName("pop3", host, 995, "",
                 user, password);
         session = Session.getInstance(pop3Props, null);
-        store = new POP3SSLStore(session, url);
-        store.connect(host, user, password);
-        Folder inbox = store.getFolder("Inbox");
+        mStore = new POP3SSLStore(session, url);
+        mStore.connect(host, user, password);
+        Folder inbox = mStore.getFolder("Inbox");
         inbox.open(Folder.READ_ONLY);
         return inbox;
     }
@@ -63,9 +66,9 @@ public class DBUpdater {
                 for (javax.mail.Message message : messages) {
                     String s = message.getSubject();
                     String s1 = s.substring(0, 3);
-                    if (!s1.equalsIgnoreCase("zip"))
+                    if (!s1.equalsIgnoreCase(MESSAGE_PREFIX))
                         continue;
-                    s = s.replace("zip", "");
+                    s = s.replace(MESSAGE_PREFIX, "");
                     String ds = s.substring(0, 2);
                     if ((ds.compareTo("31") == 1)
                             || (ds.compareTo("00") == -1))
@@ -79,9 +82,14 @@ public class DBUpdater {
                             || (ys.compareTo("2000") == -1))
                         continue;
 
-                    String lastUpdatedDay = lastUpdated.substring(0, 2);
-                    String lastUpdatedMonth = lastUpdated.substring(3, 5);
-                    String lastUpdatedYear = lastUpdated.substring(6, 10);
+                    String lastUpdatedDay = "";
+                    String lastUpdatedMonth = "";
+                    String lastUpdatedYear = "";
+                    if (!TextUtils.isEmpty(lastUpdated)) {
+                        lastUpdatedDay = lastUpdated.substring(0, 2);
+                        lastUpdatedMonth = lastUpdated.substring(3, 5);
+                        lastUpdatedYear = lastUpdated.substring(6, 10);
+                    }
 
                     int i = (ys.compareTo(lastUpdatedYear));
                     if (i == 0) {
@@ -120,13 +128,13 @@ public class DBUpdater {
                 if (msg == null) {
                     postSuccess(listener, handler, null);
                 } else {
-                    final String updated = msg.getSubject().replace("zip", "");
+                    final String updated = msg.getSubject().replace(MESSAGE_PREFIX, "");
                     postSuccess(listener, handler, updated);
                 }
             } finally {
                 folder.close(false);
-                if (store != null)
-                    store.close();
+                if (mStore != null)
+                    mStore.close();
             }
         } catch (Exception e) {
             postError(listener, handler, R.string.update_error);
@@ -176,7 +184,7 @@ public class DBUpdater {
                     File tmpfile = new File(newFileName);
                     File dbFile = new File(dbFileName);
                     if (tmpfile.renameTo(dbFile)) {
-                        final String updatedDate = msg.getSubject().replace("zip", "");
+                        final String updatedDate = msg.getSubject().replace(MESSAGE_PREFIX, "");
                         postSuccess(listener, handler, updatedDate);
                     } else {
                         postError(listener, handler, R.string.update_error);
@@ -184,7 +192,9 @@ public class DBUpdater {
                 } else {
                     try {
                         File tmpfile = new File(newFileName);
-                        tmpfile.delete();
+                        if (!tmpfile.delete()){
+                            tmpfile.deleteOnExit();
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -192,11 +202,17 @@ public class DBUpdater {
                 }
             } finally {
                 folder.close(false);
-                if (store != null)
-                    store.close();
+                if (mStore != null)
+                    mStore.close();
             }
         } catch (Exception e) {
             postError(listener, handler, e.getMessage());
+        }
+    }
+
+    private void hideProgress(){
+        if (mProgressDialog != null){
+            mProgressDialog.dismiss();
         }
     }
 
@@ -204,6 +220,7 @@ public class DBUpdater {
         handler.post(new Runnable() {
             @Override
             public void run() {
+                hideProgress();
                 listener.onError(error);
             }
         });
@@ -213,6 +230,7 @@ public class DBUpdater {
         handler.post(new Runnable() {
             @Override
             public void run() {
+                hideProgress();
                 listener.onError(stringResId);
             }
         });
@@ -222,6 +240,7 @@ public class DBUpdater {
         handler.post(new Runnable() {
             @Override
             public void run() {
+                hideProgress();
                 listener.onSuccess(updateDate);
             }
         });
@@ -260,12 +279,19 @@ public class DBUpdater {
         }).start();
     }
 
-    public void updateDB(final UpdateListener listener, final String lastUpdated) {
+    public void updateDB(final UpdateListener listener, final String lastUpdated, final boolean silent) {
         final Handler handler = new Handler();
+        if (!silent){
+            mProgressDialog = new ProgressDialog(mContext);
+            mProgressDialog.setTitle(R.string.please_wait);
+            mProgressDialog.setMessage(mContext.getString(R.string.db_is_updating));
+            mProgressDialog.setCancelable(false);
+            mProgressDialog.show();
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {
-                updateSchedule(listener, lastUpdated, handler);
+                updateSchedule(listener, lastUpdated, handler );
             }
         }).start();
     }

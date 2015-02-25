@@ -47,7 +47,7 @@ public class MainActivity extends ActionBarActivity implements android.support.v
                     }
                 }
             };
-            mDBManager.updateDB(listener);
+            mDBManager.updateDB(listener, false);
         } else
         {
             initTabs();

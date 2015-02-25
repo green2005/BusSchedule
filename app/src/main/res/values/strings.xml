@@ -9,5 +9,7 @@
     <string name="check_inet_connection">Проверьте подключение к Интернет</string>
     <string name="update_error">"Ошибка обновления"</string>
     <string name="ok">OK</string>
+    <string name="please_wait">Пожалуйста подождите</string>
+    <string name="db_is_updating">Обновление расписания</string>
 
 </resources>

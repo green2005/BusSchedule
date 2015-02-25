@@ -2,6 +2,7 @@ package by.grodno.bus.db;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
@@ -36,9 +37,9 @@ public class DBManager {
         updater.checkUpdateExists(listener, getUpdateDate());
     }
 
-    public void updateDB(UpdateListener listener) {
+    public void updateDB(UpdateListener listener, boolean silent) {
         DBUpdater updater = new DBUpdater(mContext);
-        updater.updateDB(listener, getUpdateDate());
+        updater.updateDB(listener, getUpdateDate(), silent);
     }
 
     public static String getDBfileName(Context context) {
@@ -51,11 +52,7 @@ public class DBManager {
         if (mdb == null) {
             openDB();
         }
-        if (mdb != null) {
-            return mdb.isOpen();
-        } else {
-            return false;
-        }
+        return mdb != null && mdb.isOpen();
     }
 
     public void openDB() {
@@ -74,4 +71,14 @@ public class DBManager {
         }
     }
 
+    public Cursor getStops(){
+        if (!mdb.isOpen()){
+            return  null;
+        }
+        String sql ="select  trim(replace(name,\" (конечная)\",\"\"))"
+                + " from stops group by  trim(replace(name,\" (конечная)\",\"\"))";
+        Cursor cr = mdb.rawQuery(sql, null);
+        cr.moveToFirst();
+        return cr;
+    }
 }
