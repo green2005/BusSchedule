@@ -1,17 +1,14 @@
 package by.grodno.bus.db;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.text.TextUtils;
 
 import java.io.File;
 
 public class DBManager {
 
     public static final String DBNAME = "busschedule.db";
-    private static final String UPDATE_DATE = "update_date";
     private Context mContext;
     private SQLiteDatabase mdb;
 
@@ -20,26 +17,14 @@ public class DBManager {
         mContext = context;
     }
 
-    private String getUpdateDate() {
-        SharedPreferences prefs = mContext.getSharedPreferences(UPDATE_DATE, Context.MODE_PRIVATE);
-        return prefs.getString(UPDATE_DATE, null);
-    }
-
-    private void setUpdateDate(String updateDate) {
-        SharedPreferences prefs = mContext.getSharedPreferences(UPDATE_DATE, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(UPDATE_DATE, updateDate);
-        editor.apply();
-    }
-
     public void checkUpdateExists(UpdateListener listener) {
         DBUpdater updater = new DBUpdater(mContext);
-        updater.checkUpdateExists(listener, getUpdateDate());
+        updater.checkUpdateExists(listener);
     }
 
     public void updateDB(UpdateListener listener, boolean silent) {
         DBUpdater updater = new DBUpdater(mContext);
-        updater.updateDB(listener, getUpdateDate(), silent);
+        updater.updateDB(listener, silent);
     }
 
     public static String getDBfileName(Context context) {
@@ -57,7 +42,7 @@ public class DBManager {
 
     public void openDB() {
         File file = new File(getDBfileName(mContext));
-        if (file.exists()){
+        if (!file.exists()) {
             return;
         }
         mdb = SQLiteDatabase.openDatabase(getDBfileName(mContext), null,
@@ -71,11 +56,11 @@ public class DBManager {
         }
     }
 
-    public Cursor getStops(){
-        if (!mdb.isOpen()){
-            return  null;
+    public Cursor getStops() {
+        if (!mdb.isOpen()) {
+            return null;
         }
-        String sql ="select  trim(replace(name,\" (конечная)\",\"\"))"
+        String sql = "select  trim(replace(name,\" (конечная)\",\"\"))"
                 + " from stops group by  trim(replace(name,\" (конечная)\",\"\"))";
         Cursor cr = mdb.rawQuery(sql, null);
         cr.moveToFirst();

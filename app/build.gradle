@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "by.grodno.bus"
         minSdkVersion 11
-        targetSdkVersion 17
+        targetSdkVersion 18
         versionCode 1
         versionName "1.0"
     }
@@ -17,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+    }
 }
 
 dependencies {
@@ -24,4 +28,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:support-v4:18.0.0'
     compile 'javax.mail:mail:1.4.7'
+    compile 'additional'
+
 }

@@ -6,28 +6,42 @@
         jumboMode="false"
         revision="21.1.2"
         sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
-        <dex dex="D:\AndroidDev\GrodnoBus2\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.3-34a57f82165fcc191123ae4d70b3d0379c72c265.jar" />
+        <dex dex="D:\AndroidDev\GrodnoBus2\BusSchedule\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.3-34a57f82165fcc191123ae4d70b3d0379c72c265.jar" />
     </item>
     <item
-        jar="D:\AndroidDev\GrodnoBus2\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
-        <dex dex="D:\AndroidDev\GrodnoBus2\app\build\intermediates\pre-dexed\debug\classes-c4bdca71c6397799c6a1d8d2021509cdef4bec74.jar" />
-    </item>
-    <item
-        jar="D:\AndroidDev\GrodnoBus2\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\21.0.3\classes.jar"
+        jar="D:\AndroidDev\GrodnoBus2\BusSchedule\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\21.0.3\classes.jar"
         jumboMode="false"
         revision="21.1.2"
         sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
-        <dex dex="D:\AndroidDev\GrodnoBus2\app\build\intermediates\pre-dexed\debug\classes-662e872a6a13cdb848f832fd85ca3d8d3c817ff9.jar" />
+        <dex dex="D:\AndroidDev\GrodnoBus2\BusSchedule\app\build\intermediates\pre-dexed\debug\classes-59493bda2926f1c0f140fe92fe31cd32cc023a04.jar" />
     </item>
     <item
-        jar="D:\AndroidDev\GrodnoBus2\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\libs\internal_impl-21.0.3.jar"
+        jar="D:\AndroidDev\GrodnoBus2\BusSchedule\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\libs\internal_impl-21.0.3.jar"
         jumboMode="false"
         revision="21.1.2"
         sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
-        <dex dex="D:\AndroidDev\GrodnoBus2\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-e02ea5ba86eaae89bdc92bd4166b1369b82b6db3.jar" />
+        <dex dex="D:\AndroidDev\GrodnoBus2\BusSchedule\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-11e530150441e83e0c437f912c7873731113040a.jar" />
+    </item>
+    <item
+        jar="C:\Users\Sanya\.gradle\caches\modules-2\files-2.1\javax.mail\mail\1.4.7\9add058589d5d85adeb625859bf2c5eeaaedf12d\mail-1.4.7.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="9add058589d5d85adeb625859bf2c5eeaaedf12d">
+        <dex dex="D:\AndroidDev\GrodnoBus2\BusSchedule\app\build\intermediates\pre-dexed\debug\mail-1.4.7-63c67836e96bae37f43a4a1d28211d9bd7408e07.jar" />
+    </item>
+    <item
+        jar="C:\Users\Sanya\.gradle\caches\modules-2\files-2.1\javax.activation\activation\1.1\e6cb541461c2834bdea3eb920f1884d1eb508b50\activation-1.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="e6cb541461c2834bdea3eb920f1884d1eb508b50">
+        <dex dex="D:\AndroidDev\GrodnoBus2\BusSchedule\app\build\intermediates\pre-dexed\debug\activation-1.1-74a037032b8702264446e2a0d2e7a96ceb5786b2.jar" />
+    </item>
+    <item
+        jar="D:\AndroidDev\GrodnoBus2\BusSchedule\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
+        <dex dex="D:\AndroidDev\GrodnoBus2\BusSchedule\app\build\intermediates\pre-dexed\debug\classes-a90a599e552f34c138d346a0a27ba22d29feefa4.jar" />
     </item>
 
 </items>

@@ -2,6 +2,7 @@ package by.grodno.bus.db;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
@@ -32,32 +33,47 @@ public class DBUpdater {
     Context mContext;
     Store mStore;
     ProgressDialog mProgressDialog;
+    private static final String UPDATE_DATE = "update_date";
 
     public DBUpdater(Context context) {
         mContext = context;
     }
 
-    private Folder getYandexInboxFolder() throws Exception {
-        Properties pop3Props;
-        Session session;
+    private Folder getYandexInboxFolder() throws Exception{
+            String host = "pop.yandex.ru";
+            String user = "green2005update";
+            String password = "androidupdate1";
 
-        String host = "pop.yandex.ru";
-        String user = "green2005update";
-        String password = "androidupdate1";
-        pop3Props = new Properties();
-        pop3Props.setProperty("mail.pop3.socketFactory.class", SSL_FACTORY);
-        pop3Props.setProperty("mail.pop3.socketFactory.fallback", "false");
-        pop3Props.setProperty("mail.pop3.port", "995");
-        pop3Props.setProperty("mail.pop3.socketFactory.port", "995");
-        URLName url = new URLName("pop3", host, 995, "",
-                user, password);
-        session = Session.getInstance(pop3Props, null);
-        mStore = new POP3SSLStore(session, url);
-        mStore.connect(host, user, password);
-        Folder inbox = mStore.getFolder("Inbox");
-        inbox.open(Folder.READ_ONLY);
-        return inbox;
+            Properties pop3Props=new Properties();
+
+            pop3Props.setProperty("mail.pop3.socketFactory.class", SSL_FACTORY);
+            pop3Props.setProperty("mail.pop3.socketFactory.fallback", "false");
+            pop3Props.setProperty("mail.pop3.port",  "995");
+            pop3Props.setProperty("mail.pop3.socketFactory.port", "995");
+            pop3Props.put("mail.smtp.starttls.enable", "true");
+
+            // connect to my pop3 inbox
+
+				 /*
+				 pop3Props = System.getProperties();
+				session = Session.getDefaultInstance(pop3Props);
+				store = session.getStore("pop3");
+				*/
+            URLName url = new URLName("pop3", host, 995, "",
+                    user, password);
+
+            Session session = Session.getInstance(pop3Props, null);
+            Store store = new POP3SSLStore(session, url);
+
+            store.connect(host, user, password);
+
+
+            Folder inbox = store.getFolder("Inbox");
+            inbox.open(Folder.READ_ONLY);
+            return inbox;
+
     }
+
 
     private Message getLastMessage(Folder folder, String lastUpdated, UpdateListener listener) {
         try {
@@ -162,8 +178,19 @@ public class DBUpdater {
                     return;
                 }
                 String newFileName = DBManager.getDBfileName(mContext) + ".tmp";
+                File file  = new File(newFileName);
+                file.mkdirs();
+
+                String path = file.getParent();
+                String fileName = file.getName();
+                file = new File(path, fileName);
+                file.delete();
+
+                file.createNewFile();
+                file.setWritable(true);
+
                 String dbFileName = DBManager.getDBfileName(mContext);
-                OutputStream stream = new FileOutputStream(newFileName);
+                OutputStream stream = new FileOutputStream(file, false);
                 Multipart multipart = (Multipart) msg.getContent();
 
                 for (int j = 0; j < multipart.getCount(); j++) {
@@ -192,7 +219,7 @@ public class DBUpdater {
                 } else {
                     try {
                         File tmpfile = new File(newFileName);
-                        if (!tmpfile.delete()){
+                        if (!tmpfile.delete()) {
                             tmpfile.deleteOnExit();
                         }
                     } catch (Exception e) {
@@ -210,8 +237,8 @@ public class DBUpdater {
         }
     }
 
-    private void hideProgress(){
-        if (mProgressDialog != null){
+    private void hideProgress() {
+        if (mProgressDialog != null) {
             mProgressDialog.dismiss();
         }
     }
@@ -241,9 +268,24 @@ public class DBUpdater {
             @Override
             public void run() {
                 hideProgress();
+                if (!TextUtils.isEmpty(updateDate)) {
+                    setUpdateDate(updateDate);
+                }
                 listener.onSuccess(updateDate);
             }
         });
+    }
+
+    private String getUpdateDate() {
+        SharedPreferences prefs = mContext.getSharedPreferences(UPDATE_DATE, Context.MODE_PRIVATE);
+        return prefs.getString(UPDATE_DATE, null);
+    }
+
+    private void setUpdateDate(String updateDate) {
+        SharedPreferences prefs = mContext.getSharedPreferences(UPDATE_DATE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(UPDATE_DATE, updateDate);
+        editor.apply();
     }
 
     private boolean checkIsDbCorrect(String fileName) {
@@ -269,19 +311,19 @@ public class DBUpdater {
     }
 
 
-    public void checkUpdateExists(final UpdateListener listener, final String lastUpdated) {
+    public void checkUpdateExists(final UpdateListener listener ) {
         final Handler handler = new Handler();
         new Thread(new Runnable() {
             @Override
             public void run() {
-                checkScheduleUpdateExists(listener, lastUpdated, handler);
+                checkScheduleUpdateExists(listener, getUpdateDate(), handler);
             }
         }).start();
     }
 
-    public void updateDB(final UpdateListener listener, final String lastUpdated, final boolean silent) {
+    public void updateDB(final UpdateListener listener, final boolean silent) {
         final Handler handler = new Handler();
-        if (!silent){
+        if (!silent) {
             mProgressDialog = new ProgressDialog(mContext);
             mProgressDialog.setTitle(R.string.please_wait);
             mProgressDialog.setMessage(mContext.getString(R.string.db_is_updating));
@@ -291,7 +333,7 @@ public class DBUpdater {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                updateSchedule(listener, lastUpdated, handler );
+                updateSchedule(listener, getUpdateDate(), handler);
             }
         }).start();
     }
