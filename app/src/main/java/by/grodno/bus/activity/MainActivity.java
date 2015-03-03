@@ -1,4 +1,4 @@
-package by.grodno.bus;
+package by.grodno.bus.activity;
 
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
@@ -9,6 +9,11 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import by.grodno.bus.BusApplication;
+import by.grodno.bus.ErrorHelper;
+import by.grodno.bus.R;
+import by.grodno.bus.TabItem;
+import by.grodno.bus.TabsPagerAdapter;
 import by.grodno.bus.db.DBManager;
 import by.grodno.bus.db.UpdateListener;
 
@@ -41,6 +46,7 @@ public class MainActivity extends ActionBarActivity implements android.support.v
                 @Override
                 public void onSuccess(String updatedDate) {
                     if (!TextUtils.isEmpty(updatedDate)) {
+                        mDBManager.openDB();
                         initTabs();
                     } else {
                         finish();

@@ -28,8 +28,7 @@ public class DBManager {
     }
 
     public static String getDBfileName(Context context) {
-        File f = context.getDatabasePath(DBManager.DBNAME);
-        return f.getAbsolutePath();
+        return context.getDatabasePath(DBManager.DBNAME).getAbsolutePath();
     }
 
 
@@ -56,14 +55,50 @@ public class DBManager {
         }
     }
 
+    public Cursor rawQuery(String sql) {
+        return mdb.rawQuery(sql, null);
+    }
+
+    public static final String getStopsSQL() {
+        String sql = "select  trim(replace(name,\" (конечная)\",\"\")) as name "
+                + " from stops group by  trim(replace(name,\" (конечная)\",\"\"))";
+        return sql;
+    }
+
+    public static final String getRoutesSQL(){
+       return " select name from buses group by name order by length(name),name";
+    }
+
     public Cursor getStops() {
         if (!mdb.isOpen()) {
             return null;
         }
-        String sql = "select  trim(replace(name,\" (конечная)\",\"\"))"
+        String sql = "select  trim(replace(name,\" (конечная)\",\"\")) as name "
                 + " from stops group by  trim(replace(name,\" (конечная)\",\"\"))";
         Cursor cr = mdb.rawQuery(sql, null);
         cr.moveToFirst();
         return cr;
     }
+
+    public int getRouteDirCount(String busName) {
+        String sql = "select count(*)  from buses where name=\"" + busName
+                + "\"";
+        Cursor cr = mdb.rawQuery(sql, null);
+        cr.moveToFirst();
+        int c = cr.getInt(0);
+        cr.close();
+        return c;
+    }
+
+    public String getRouteChild(String routeName, int dirPos) {
+        String sql = "select direction from buses where name=" + "\""
+                + routeName + "\"";
+        Cursor cr = mdb.rawQuery(sql, null);
+        cr.moveToPosition(dirPos);
+        String s = cr.getString(0);
+        cr.close();
+        return s;
+    }
+
+
 }

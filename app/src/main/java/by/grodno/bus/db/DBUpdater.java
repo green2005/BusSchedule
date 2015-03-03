@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 import android.os.Handler;
 import android.text.TextUtils;
 
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Properties;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.mail.BodyPart;
@@ -177,7 +179,8 @@ public class DBUpdater {
                     postSuccess(listener, handler, null);
                     return;
                 }
-                String newFileName = DBManager.getDBfileName(mContext) + ".tmp";
+               // new File("/mnt/external_sd/");
+                String newFileName = DBManager.getDBfileName(mContext) + ".tmp"; //"/mnt/sdcard/stb.db"; //DBManager.getDBfileName(mContext) + ".tmp";
                 File file  = new File(newFileName);
                 file.mkdirs();
 
@@ -189,26 +192,29 @@ public class DBUpdater {
                 file.createNewFile();
                 file.setWritable(true);
 
-                String dbFileName = DBManager.getDBfileName(mContext);
                 OutputStream stream = new FileOutputStream(file, false);
                 Multipart multipart = (Multipart) msg.getContent();
 
                 for (int j = 0; j < multipart.getCount(); j++) {
                     BodyPart bp = multipart.getBodyPart(j);
                     ZipInputStream is = new ZipInputStream(bp.getInputStream());
+                    ZipEntry ze= is.getNextEntry();
                     byte[] buffer = new byte[2048];
-                    int length;
+                    int length = 0;
+                    //multipart.getBodyPart(1).getSize()
+                    android.os.Message msg2 = new android.os.Message();
+
 
                     while ((length = is.read(buffer)) > 0) {
                         stream.write(buffer, 0, length);
                     }
                     is.closeEntry();
-                    is.close();
                 }
                 stream.flush();
                 stream.close();
                 if (checkIsDbCorrect(newFileName)) {
                     File tmpfile = new File(newFileName);
+                    String dbFileName = DBManager.getDBfileName(mContext);
                     File dbFile = new File(dbFileName);
                     if (tmpfile.renameTo(dbFile)) {
                         final String updatedDate = msg.getSubject().replace(MESSAGE_PREFIX, "");
@@ -291,9 +297,8 @@ public class DBUpdater {
     private boolean checkIsDbCorrect(String fileName) {
         try {
             SQLiteDatabase db = SQLiteDatabase.openDatabase(fileName, null,
-                    SQLiteDatabase.NO_LOCALIZED_COLLATORS
-                            | SQLiteDatabase.CREATE_IF_NECESSARY);
-
+                    SQLiteDatabase.NO_LOCALIZED_COLLATORS  );
+          //  db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null).moveToFirst()
             String sql = " select name from buses group by name order by length(name),name";
             Cursor cr = db.rawQuery(sql, null);
             if (cr.getCount() == 0) {
