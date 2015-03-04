@@ -1,6 +1,7 @@
 package by.grodno.bus.fragments;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -9,13 +10,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
-
-import java.util.HashSet;
-import java.util.Set;
+import android.widget.AdapterView;
 
 import by.grodno.bus.BusApplication;
 import by.grodno.bus.R;
+import by.grodno.bus.activity.StopRoutesActivity;
 import by.grodno.bus.adapters.StopsAdapter;
 import by.grodno.bus.db.DBManager;
 import by.grodno.bus.db.QueryHelper;
@@ -101,6 +100,18 @@ public class StopsFragment extends Fragment {
                     StopsAdapter adapter = new StopsAdapter(activity, cursor);
                     mListView.setAdapter(adapter);
                     mListView.setFastScrollEnabled(true);
+                    mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            mCursor.moveToPosition(position);
+                            String stopName = mCursor.getString(mCursor.getColumnIndex(DBManager.STOP_NAME));
+                            String stopId = mCursor.getString(mCursor.getColumnIndex(DBManager.STOP_ID));
+                            Intent intent = new Intent(activity, StopRoutesActivity.class);
+                            intent.putExtra(DBManager.STOP_NAME, stopName);
+                            intent.putExtra(DBManager.STOP_ID, stopId);
+                            activity.startActivity(intent);
+                        }
+                    });
                     restoreState();
                 }
             });

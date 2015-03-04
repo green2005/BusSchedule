@@ -9,7 +9,7 @@ import android.support.v7.app.ActionBarActivity;
 import by.grodno.bus.R;
 import by.grodno.bus.fragments.RouteStopsFragment;
 
-public class DetailActivity extends ActionBarActivity {
+public class RouteStopsActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
