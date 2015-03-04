@@ -1,9 +1,7 @@
 package by.grodno.bus.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,24 +13,20 @@ import by.grodno.bus.R;
 import by.grodno.bus.db.DBManager;
 
 public class RouteAdapter extends BaseExpandableListAdapter implements ExpandableListView.OnChildClickListener {
-    private Context mContext;
     private Cursor mGroupCursor;
     private DBManager mDBManager;
     private LayoutInflater mInflater;
 
     public RouteAdapter(Context context, Cursor groupCursor, DBManager dbManager) {
-        mContext = context;
         mInflater = LayoutInflater.from(context);
         mDBManager = dbManager;
         mGroupCursor = groupCursor;
     }
 
-
     @Override
     public Object getChild(int groupPosition, int childPosition) {
         mGroupCursor.moveToPosition(groupPosition);
-        String s = mDBManager.getRouteChild(mGroupCursor.getString(0), childPosition);
-        return s;
+        return mDBManager.getRouteChild(mGroupCursor.getString(0), childPosition);
     }
 
     @Override
@@ -112,7 +106,8 @@ public class RouteAdapter extends BaseExpandableListAdapter implements Expandabl
 
         stops.putExtras(b);
         mContext.startActivity(stops);
-       */ return false;
+       */
+        return false;
     }
 }
 

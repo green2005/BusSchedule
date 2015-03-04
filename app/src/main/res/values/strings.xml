@@ -11,5 +11,17 @@
     <string name="ok">OK</string>
     <string name="please_wait">Пожалуйста подождите</string>
     <string name="db_is_updating">Обновление расписания</string>
+    <string name="mon">Понедельник</string>
+    <string name="tue">Вторник</string>
+    <string name="wed">Среда</string>
+    <string name="thu">Четверг</string>
+    <string name="fri">Пятница</string>
+    <string name="sat">Суббота</string>
+    <string name="sun">Воскресенье</string>
+    <string name="dayoff">Выходной</string>
+    <string name="workday">Рабочий</string>
+    <string name="hour">ч</string>
+    <string name="minute">м</string>
+    <string name="ina">через</string>
 
 </resources>

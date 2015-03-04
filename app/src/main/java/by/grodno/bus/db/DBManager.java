@@ -12,6 +12,11 @@ public class DBManager {
     public static final String STOP_NAME = "name";
     public static final String STOP_ID = "id";
 
+    public static final String BUS_NAME = "name";
+    public static final String BUS_DIRECTION = "direction";
+    public static final String SCHEDULE_TIME = "time";
+    public static final String MINUTES = "minutes";
+
 
     private Context mContext;
     private SQLiteDatabase mdb;
@@ -63,35 +68,34 @@ public class DBManager {
         return mdb.rawQuery(sql, null);
     }
 
-    public static final String getStopsSQL() {
-        String sql = "select  "+STOP_NAME+", "+STOP_ID+"  from stops ";
-        return sql;
+    public static String getStopsSQL() {
+        return "select  " + STOP_NAME + ", " + STOP_ID + "  from stops ";
     }
 
-    public static final String getRoutesSQL(){
-       return " select name from buses group by name order by length(name),name";
+    public static String getRoutesSQL() {
+        return " select name from buses group by name order by length(name),name";
     }
 
-    public static final String getStopRoutesSQL(String dayName1, String dayName2, String time, String idStop){
-        StringBuilder builder = new StringBuilder();
-        builder.append("select ");
-        builder.append("buses.[name],");
-        builder.append("buses.[direction],");
-        builder.append("[schedule].[time] as [time],");
-        builder.append("case when [schedule].[time] < '04.00' then 1 else 0 end as [pn], ");
-        builder.append("min(case when [schedule].[time] < '04.00' then 1 else 0 end) as [minpn] ");
-        builder.append("from [rlbusstops] ");
-        builder.append("join buses buses on buses.[id]=[rlbusstops].[idbus]");
-        builder.append("join [schedule] on [schedule].[idbus]=buses.[id] and [schedule].[idstop]=[rlbusstops].[idstop]");
-        builder.append(String.format("where ([rlbusstops].idstop = %s) and ", idStop));
-        builder.append(String.format("[schedule].[day] in ('%s','%s')) ", dayName1, dayName2));
-        builder.append(String.format(" and (([schedule].[time]>'%s') or([schedule].[time]<'04.00')) ", time));
-        builder.append(" group by ");
-        builder.append(" buses.[name], ");
-        builder.append(" buses.[direction] ");
-        builder.append(" order by length(buses.[name]), buses.name" );
-        return builder.toString();
+
+    public static String getStopRoutesSQL(String dayName1, String dayName2, String time, String idStop) {
+        return "select " + "buses.[name]," + "buses.[direction]," + "[schedule].[time] as [time]," +
+                "case when substr([schedule].[time],1,2) < '04' then " +
+                "                (24 + cast(substr([schedule].[time],1,2) as int))*60 + " +
+                "                cast(substr([schedule].[time],4,2) as int) " +
+                "                 else                 " +
+                "                cast(substr([schedule].[time],1,2) as int)*60 + " +
+                "                cast(substr([schedule].[time],4,2) as int) " +
+                "                  end as ["+MINUTES+"],  " +
+                "case when [schedule].[time] < '04.00' then 1 else 0 end as [pn], " +
+                "min(case when [schedule].[time] < '04.00' then 1 else 0 end) as [minpn] " +
+                "from [rlbusstops] " + "join buses buses on buses.[id]=[rlbusstops].[idbus]" +
+                "join [schedule] on [schedule].[idbus]=buses.[id] and [schedule].[idstop]=[rlbusstops].[idstop]" +
+                String.format("where ([rlbusstops].idstop = %s) and ", idStop) +
+                String.format("[schedule].[day] in ('%s','%s') ", dayName1, dayName2) +
+                String.format(" and (([schedule].[time]>'%s') or([schedule].[time]<'04.00')) ", time) +
+                " group by " + " buses.[name], " + " buses.[direction] " + " order by length(buses.[name]), buses.name";
     }
+
 
     public Cursor getStops() {
         if (!mdb.isOpen()) {
