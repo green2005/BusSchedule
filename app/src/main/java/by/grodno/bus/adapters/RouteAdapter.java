@@ -1,7 +1,9 @@
 package by.grodno.bus.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,17 +12,20 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import by.grodno.bus.R;
+import by.grodno.bus.activity.RouteStopsActivity;
 import by.grodno.bus.db.DBManager;
 
 public class RouteAdapter extends BaseExpandableListAdapter implements ExpandableListView.OnChildClickListener {
     private Cursor mGroupCursor;
     private DBManager mDBManager;
     private LayoutInflater mInflater;
+    private Context mContext;
 
     public RouteAdapter(Context context, Cursor groupCursor, DBManager dbManager) {
         mInflater = LayoutInflater.from(context);
         mDBManager = dbManager;
         mGroupCursor = groupCursor;
+        mContext = context;
     }
 
     @Override
@@ -96,17 +101,13 @@ public class RouteAdapter extends BaseExpandableListAdapter implements Expandabl
 
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-        /*Intent stops = new Intent(mContext, RouteStopsActivity.class);
+        Intent stops = new Intent(mContext, RouteStopsActivity.class);
         Bundle b = new Bundle();
         mGroupCursor.moveToPosition(groupPosition);
-        String route = mGroupCursor.getString(0);
-        String direction = mDBManager.getRouteChild(route, childPosition);
-        b.putString("route", route);
-        b.putString("direction", direction);
-
+        String busId = mGroupCursor.getString(mGroupCursor.getColumnIndex(DBManager.BUS_ID));
+        b.putString(DBManager.BUS_ID, busId);
         stops.putExtras(b);
         mContext.startActivity(stops);
-       */
         return false;
     }
 }
