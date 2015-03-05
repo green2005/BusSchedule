@@ -115,6 +115,7 @@ public class RoutesFragment extends Fragment {
             @Override
             public void onQueryCompleted(Cursor cursor) {
                 RouteAdapter adapter = new RouteAdapter(activity, cursor, dbManager);
+                mListView.setOnChildClickListener(adapter);
                 mListView.setAdapter(adapter);
                 mGroupCursor = cursor;
                 restoreState();

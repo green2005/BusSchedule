@@ -13,15 +13,15 @@ import by.grodno.bus.CalendarHelper;
 import by.grodno.bus.R;
 import by.grodno.bus.db.DBManager;
 
-public class StopRoutesAdapter extends BaseAdapter {
-    private LayoutInflater mInflater;
-    private Context mContext;
+public class RouteStopsAdapter extends BaseAdapter{
     private Cursor mCursor;
+    private Context mContext;
+    private LayoutInflater mInflater;
 
-    public StopRoutesAdapter(Context context, Cursor c) {
-        mInflater = LayoutInflater.from(context);
+    public RouteStopsAdapter(Cursor cursor, Context context ){
+        mCursor = cursor;
         mContext = context;
-        mCursor = c;
+        mInflater = LayoutInflater.from(context);
     }
 
     @Override
@@ -44,17 +44,15 @@ public class StopRoutesAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         mCursor.moveToPosition(position);
-        View view = convertView;
-        if (view == null) {
-            view = mInflater.inflate(R.layout.stoproutesitem, null);
+        View cnView = convertView;
+        if (cnView == null){
+            cnView =  mInflater.inflate(R.layout.stoproutesitem, null);
         }
-        TextView tvName = (TextView) view.findViewById(R.id.routeNameView);
-        TextView tvTime1 = (TextView) view.findViewById(R.id.time1View);
-        TextView tvTime2 = (TextView) view.findViewById(R.id.time2View);
-        String name = mCursor.getString(mCursor.getColumnIndex(DBManager.BUS_NAME)) +
-                " " + mCursor.getString(mCursor.getColumnIndex(DBManager.BUS_DIRECTION));
-        tvName.setText(name);
-
+        TextView tvTitle = (TextView)cnView.findViewById(R.id.routeNameView);
+        TextView tvTime1 = (TextView)cnView.findViewById(R.id.time1View);
+        TextView tvTime2 = (TextView)cnView.findViewById(R.id.time2View);
+        String name = mCursor.getString(mCursor.getColumnIndex(DBManager.STOP_NAME));
+        tvTitle.setText(name);
         tvTime1.setText(mCursor.getString(mCursor.getColumnIndex(DBManager.SCHEDULE_TIME)));
         int sqlMinutes = mCursor.getInt(mCursor.getColumnIndex(DBManager.MINUTES));
         int minutes = CalendarHelper.getMinutes();
@@ -63,7 +61,7 @@ public class StopRoutesAdapter extends BaseAdapter {
         if (diff > 60) {
             int mins = diff % 60;
             int hours = diff / 60;
-            s = String.valueOf(hours) + " " + mContext.getString(R.string.hour) +  " "+
+            s = String.valueOf(hours) + " " + mContext.getString(R.string.hour) + " "+
                     String.valueOf(mins) + " " + mContext.getString(R.string.minute);
         } else {
             s = String.valueOf(diff) + " " + mContext.getString(R.string.minute);
@@ -72,6 +70,6 @@ public class StopRoutesAdapter extends BaseAdapter {
             s = mContext.getResources().getString(R.string.ina) + " " + s;
         }
         tvTime2.setText(s);
-        return view;
+        return cnView;
     }
 }

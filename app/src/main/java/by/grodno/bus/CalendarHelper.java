@@ -15,6 +15,7 @@ public class CalendarHelper {
     }
 
     public static String getDay1(Context context) {
+        //todo fix bug in case of time > 00.00 and time<04.00
         int i = getDayNumber() - 1;
         switch (i){
             case 1:return context.getResources().getString(R.string.mon);

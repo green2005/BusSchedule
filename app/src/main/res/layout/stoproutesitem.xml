@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="match_parent" 
-    android:layout_margin="10dp">
+    android:layout_height="match_parent"
+    android:paddingLeft="8dp"
+    android:paddingTop="16dp">
 
     <TextView
         android:id="@+id/routeNameView"
@@ -11,8 +12,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:text="Medium Text"
-        android:textAppearance="?android:attr/textAppearanceMedium" 
-        android:layout_marginLeft="10dp" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        />
 
     <TextView
         android:id="@+id/time1View"
@@ -20,7 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/routeNameView"
-        android:text="TextView" android:layout_marginLeft="10dp" 
+        android:paddingTop="8dp"
+        android:text="TextView"
         />
 
     <TextView
@@ -29,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/time1View"
-        android:text="TextView" 
-        android:layout_marginLeft="10dp" />
-    
+        android:paddingTop="8dp"
+        android:text="TextView"  />
+
 </RelativeLayout>

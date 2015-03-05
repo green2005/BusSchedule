@@ -32,7 +32,7 @@ public class StopRoutesFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_stop_routes, null);
+        View view = inflater.inflate(R.layout.fragment_detail, null);
         mStopId = getArguments().getString(DBManager.STOP_ID);
         mStopName = getArguments().getString(DBManager.STOP_NAME);
         mDBManager = ((BusApplication) getActivity().getApplication()).getDBManager();
