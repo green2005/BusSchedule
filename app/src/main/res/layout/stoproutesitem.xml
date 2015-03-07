@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:paddingLeft="8dp"
     android:paddingTop="16dp">
 
@@ -29,9 +29,10 @@
         android:id="@+id/time2View"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/time1View"
+        android:layout_below="@+id/routeNameView"
         android:paddingTop="8dp"
-        android:text="TextView"  />
+        android:layout_toRightOf="@+id/time1View"
+        android:paddingLeft="24dp"
+        android:text="Te111"  />
 
 </RelativeLayout>

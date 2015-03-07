@@ -1,13 +1,22 @@
 package by.grodno.bus.activity;
 
+import android.annotation.TargetApi;
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.Intent;
+import android.database.MatrixCursor;
+import android.os.Build;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import by.grodno.bus.BusApplication;
 import by.grodno.bus.ErrorHelper;
@@ -19,7 +28,8 @@ import by.grodno.bus.db.UpdateListener;
 
 public class MainActivity extends ActionBarActivity implements android.support.v7.app.ActionBar.TabListener {
     private ViewPager mViewPager;
-     private DBManager mDBManager;
+    private DBManager mDBManager;
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +64,14 @@ public class MainActivity extends ActionBarActivity implements android.support.v
                 }
             };
             mDBManager.updateDB(listener, false);
-        } else
-        {
+        } else {
             initTabs();
+        }
+
+        Intent intent = getIntent();
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            Toast.makeText(this, query, Toast.LENGTH_LONG).show();//doMySearch(query);
         }
     }
 
@@ -101,8 +116,25 @@ public class MainActivity extends ActionBarActivity implements android.support.v
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setQueryHint(
+                getResources().getString(R.string.search_hint));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                Toast.makeText(MainActivity.this, "Здесь будет поиск", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return true;
+            }
+        });
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
