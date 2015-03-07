@@ -1,19 +1,22 @@
 package by.grodno.bus.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import by.grodno.bus.CalendarHelper;
 import by.grodno.bus.R;
+import by.grodno.bus.activity.BusStopActivity;
 import by.grodno.bus.db.DBManager;
 
-public class StopRoutesAdapter extends BaseAdapter {
+public class StopRoutesAdapter extends BaseAdapter implements AdapterView.OnItemClickListener{
     private LayoutInflater mInflater;
     private Context mContext;
     private Cursor mCursor;
@@ -57,21 +60,18 @@ public class StopRoutesAdapter extends BaseAdapter {
 
         tvTime1.setText(mCursor.getString(mCursor.getColumnIndex(DBManager.SCHEDULE_TIME)));
         int sqlMinutes = mCursor.getInt(mCursor.getColumnIndex(DBManager.MINUTES));
-        int minutes = CalendarHelper.getMinutes();
-        int diff = sqlMinutes - minutes;
-        String s;
-        if (diff > 60) {
-            int mins = diff % 60;
-            int hours = diff / 60;
-            s = String.valueOf(hours) + " " + mContext.getString(R.string.hour) +  " "+
-                    String.valueOf(mins) + " " + mContext.getString(R.string.minute);
-        } else {
-            s = String.valueOf(diff) + " " + mContext.getString(R.string.minute);
-        }
-        if (!TextUtils.isEmpty(s)) {
-            s = mContext.getResources().getString(R.string.ina) + " " + s;
-        }
-        tvTime2.setText(s);
+        tvTime2.setText(CalendarHelper.getTimeDiff(mContext, sqlMinutes));
         return view;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        mCursor.moveToPosition(position);
+        String stopId = mCursor.getString(mCursor.getColumnIndex(DBManager.STOP_ID));
+        String busId = mCursor.getString(mCursor.getColumnIndex(DBManager.BUS_ID));
+        Intent intent = new Intent(mContext, BusStopActivity.class);
+        intent.putExtra(DBManager.BUS_ID, busId);
+        intent.putExtra(DBManager.STOP_ID, stopId);
+        mContext.startActivity(intent);
     }
 }

@@ -55,7 +55,8 @@ public class StopRoutesFragment extends Fragment {
             @Override
             public void onQueryCompleted(Cursor cursor) {
                 mCursor = cursor;
-                BaseAdapter stopRoutesAdapter = new StopRoutesAdapter(activity, cursor);
+                StopRoutesAdapter stopRoutesAdapter = new StopRoutesAdapter(activity, cursor);
+                listView.setOnItemClickListener(stopRoutesAdapter);
                 listView.setAdapter(stopRoutesAdapter);
             }
         });

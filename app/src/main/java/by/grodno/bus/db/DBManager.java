@@ -10,14 +10,15 @@ public class DBManager {
 
     public static final String DBNAME = "busschedule.db";
     public static final String STOP_NAME = "name";
-    public static final String STOP_ID = "id";
+    public static final String STOP_ID = "idstop";
 
     public static final String BUS_NAME = "name";
     public static final String BUS_DIRECTION = "direction";
-    public static final String BUS_ID = "id";
+    public static final String BUS_ID = "idbus";
     public static final String SCHEDULE_TIME = "time";
     public static final String MINUTES = "minutes";
-
+    public static final String HOUR = "hour";
+    public static final String MINUTE = "minute";
 
     private Context mContext;
     private SQLiteDatabase mdb;
@@ -70,16 +71,17 @@ public class DBManager {
     }
 
     public static String getStopsSQL() {
-        return "select  " + STOP_NAME + ", " + STOP_ID + "  from stops order by " + STOP_NAME;
+        return "select  " + STOP_NAME + ", id as [" + STOP_ID + "]  from stops order by " + STOP_NAME;
     }
 
     public static String getRoutesSQL() {
-        return " select " + BUS_NAME + ", " + BUS_ID + " from buses group by " + BUS_NAME +
+        return " select " + BUS_NAME + ", id as [" + BUS_ID + "] from buses group by " + BUS_NAME +
                 " order by length(" + BUS_NAME + ")," + BUS_NAME;
     }
 
     public static String getStopRoutesSQL(String dayName1, String dayName2, String time, String idStop) {
         return "select " + "buses.[name]," + "buses.[direction]," + "[schedule].[time] as [time]," +
+                " buses.id as [" + BUS_ID + "], " + idStop + " as [" + STOP_ID + "], " +
                 "case when substr([schedule].[time],1,2) < '04' then " +
                 "                (24 + cast(substr([schedule].[time],1,2) as int))*60 + " +
                 "                cast(substr([schedule].[time],4,2) as int) " +
@@ -106,18 +108,31 @@ public class DBManager {
                 " else  cast(substr([schedule].[time],1,2) as int)*60 + cast(substr([schedule].[time],4,2) as int) " +
                 " end as [minutes], " +
                 " case when [schedule].[time] < '04.00' then 1 else 0 end as [pn], " +
-                " min(case when [schedule].[time] < '04.00' then 1 else 0 end) as [minpn] " +
+                " min(case when [schedule].[time] < '04.00' then 1 else 0 end) as [minpn], " +
+                " stops.[id] as [" + STOP_ID + "], " +
+                " buses.[id] as [" + BUS_ID + "] " +
                 " from [rlbusstops] " +
                 " join buses buses on buses.[id]=[rlbusstops].[idbus] " +
-                "join [schedule] on [schedule].[idbus]=buses.[id] " +
-                " and [schedule].[idstop]=[rlbusstops].[idstop] " +
-                " join[stops] on stops.[id]=[rlbusstops].[idstop] " +
-                String.format(" where([rlbusstops].[idbus]=%s) and [schedule].[day]in('%s', '%s') ", idBus, dayName1, dayName2) +
+                " left join [schedule] on [schedule].[idbus]=buses.[id] " +
+                "       and [schedule].[idstop]=[rlbusstops].[idstop] " +
+                String.format("       and [schedule].[day]in('%s', '%s') ", dayName1, dayName2)+
                 String.format(" and(([schedule].[time] > '%s')or([schedule].[time]<'04.00')) ", time) +
+                " join[stops] on stops.[id]=[rlbusstops].[idstop] " +
+                String.format(" where ([rlbusstops].[idbus]=%s)  ", idBus) +
                 " group by stops.[name] " +
                 " order by rlbusstops.[nomOrder] ";
     }
 
+    public static String getBusStopSQL(String dayName1, String dayName2, String idBus, String idStop) {
+        return " select  " +
+                "  [schedule].[" + SCHEDULE_TIME + "] as [" + SCHEDULE_TIME + "], " +
+                "    subStr([schedule].[time],1,2) as [" + HOUR + "], " +
+                " subStr([schedule].[time],4,2) as [" + MINUTE + "]" +
+                "  from [schedule] " +
+                String.format("  where([schedule].[idbus]=%s) and [schedule].[day]in('%s', '%s') ", idBus, dayName1, dayName2) +
+                String.format("     and ([schedule].[idstop]=%s) ", idStop) +
+                "  order by schedule.[" + SCHEDULE_TIME + "] ";
+    }
 
     public Cursor getStops() {
         if (!mdb.isOpen()) {
@@ -131,7 +146,7 @@ public class DBManager {
     }
 
     public int getRouteDirCount(String busName) {
-        String sql = "select count(*)  from buses where name=\"" + busName
+        String sql = "select count(*)  from buses where " + BUS_NAME + "=\"" + busName
                 + "\"";
         Cursor cr = mdb.rawQuery(sql, null);
         cr.moveToFirst();
@@ -140,15 +155,9 @@ public class DBManager {
         return c;
     }
 
-    public String getRouteChild(String routeName, int dirPos) {
-        String sql = "select direction from buses where name=" + "\""
+    public static String getRouteChildSQL(String routeName ) {
+        return "select direction, id as [" + BUS_ID + "] from buses where name=" + "\""
                 + routeName + "\"";
-        Cursor cr = mdb.rawQuery(sql, null);
-        cr.moveToPosition(dirPos);
-        String s = cr.getString(0);
-        cr.close();
-        return s;
     }
-
 
 }

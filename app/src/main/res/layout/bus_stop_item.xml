@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="16dp">
+
+    <TextView
+        android:id="@+id/hour"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:text="20"
+        android:textSize="@dimen/abc_text_size_headline_material" />
+
+    <TextView
+        android:id="@+id/time1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="48dp"
+        android:paddingTop="8dp"
+        android:text="00"
+        android:textSize="@dimen/abc_text_size_body_2_material"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="48dp"
+        android:paddingTop="36dp"
+        android:text="00"
+        android:textSize="@dimen/abc_text_size_body_2_material"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="82dp"
+        android:paddingTop="8dp"
+        android:text="00"
+        android:textSize="@dimen/abc_text_size_body_2_material"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="82dp"
+        android:paddingTop="36dp"
+        android:text="00"
+        android:textSize="@dimen/abc_text_size_body_2_material"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="116dp"
+        android:paddingTop="8dp"
+        android:text="00"
+        android:textSize="@dimen/abc_text_size_body_2_material"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="116dp"
+        android:paddingTop="36dp"
+        android:text="00"
+        android:textSize="@dimen/abc_text_size_body_2_material"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="150dp"
+        android:paddingTop="8dp"
+        android:text="00"
+        android:textSize="@dimen/abc_text_size_body_2_material"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="150dp"
+        android:paddingTop="36dp"
+        android:text="00"
+        android:textSize="@dimen/abc_text_size_body_2_material"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="184dp"
+        android:paddingTop="8dp"
+        android:text="00"
+        android:textSize="@dimen/abc_text_size_body_2_material"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="184dp"
+        android:paddingTop="36dp"
+        android:text="00"
+        android:textSize="@dimen/abc_text_size_body_2_material"
+        android:visibility="gone" />
+</RelativeLayout>

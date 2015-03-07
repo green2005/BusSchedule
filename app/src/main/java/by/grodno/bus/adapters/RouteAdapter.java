@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,24 +15,30 @@ import android.widget.TextView;
 import by.grodno.bus.R;
 import by.grodno.bus.activity.RouteStopsActivity;
 import by.grodno.bus.db.DBManager;
+import by.grodno.bus.db.QueryHelper;
 
 public class RouteAdapter extends BaseExpandableListAdapter implements ExpandableListView.OnChildClickListener {
     private Cursor mGroupCursor;
     private DBManager mDBManager;
     private LayoutInflater mInflater;
     private Context mContext;
+    private QueryHelper mQueryHelper;
+    private Handler mHandler;
 
     public RouteAdapter(Context context, Cursor groupCursor, DBManager dbManager) {
         mInflater = LayoutInflater.from(context);
         mDBManager = dbManager;
         mGroupCursor = groupCursor;
         mContext = context;
+        mQueryHelper = new QueryHelper(mDBManager);
+        mHandler = new Handler();
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
         mGroupCursor.moveToPosition(groupPosition);
-        return mDBManager.getRouteChild(mGroupCursor.getString(0), childPosition);
+        return mGroupCursor;
+      //  return mDBManager.getRouteChild(mGroupCursor.getString(0), childPosition);
     }
 
     @Override
@@ -40,15 +47,35 @@ public class RouteAdapter extends BaseExpandableListAdapter implements Expandabl
     }
 
     @Override
-    public View getChildView(int groupPosition, int childPosition,
+    public View getChildView(int groupPosition, final int childPosition,
                              boolean isLastChild, View convertView, ViewGroup parent) {
-        View cnView = convertView;
-        if (cnView == null) {
-            cnView = mInflater.inflate(R.layout.routechild, null);
+        View view = convertView;
+        if (view == null) {
+            view = mInflater.inflate(R.layout.routechild, null);
         }
-        TextView childText = (TextView) cnView.findViewById(R.id.textChild);
-        String s = (String) getChild(groupPosition, childPosition);
-        childText.setText(s);
+        final View cnView = view;
+        mGroupCursor.moveToPosition(groupPosition);
+        String name = mGroupCursor.getString(0);
+        final TextView childText = (TextView) cnView.findViewById(R.id.textChild);
+        String sql = DBManager.getRouteChildSQL(name);
+
+        mQueryHelper.rawQuery(sql, new QueryHelper.QueryListener() {
+            @Override
+            public void onQueryCompleted(final Cursor cursor) {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        cursor.moveToPosition(childPosition);
+                        childText.setText(cursor.getString(cursor.getColumnIndex(DBManager.BUS_DIRECTION)));
+                        cnView.setTag(cursor.getString(cursor.getColumnIndex(DBManager.BUS_ID)));
+                        cursor.close();
+                    }
+                });
+            }
+        });
+
+        //String s = (String) getChild(groupPosition, childPosition);
+        //childText.setText(s);
         return cnView;
     }
 
@@ -102,9 +129,10 @@ public class RouteAdapter extends BaseExpandableListAdapter implements Expandabl
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
         Intent stops = new Intent(mContext, RouteStopsActivity.class);
+        String busId = (String)v.getTag();
         Bundle b = new Bundle();
         mGroupCursor.moveToPosition(groupPosition);
-        String busId = mGroupCursor.getString(mGroupCursor.getColumnIndex(DBManager.BUS_ID));
+        //String busId = mGroupCursor.getString(mGroupCursor.getColumnIndex(DBManager.BUS_ID));
         b.putString(DBManager.BUS_ID, busId);
         stops.putExtras(b);
         mContext.startActivity(stops);

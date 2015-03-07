@@ -51,8 +51,10 @@ public class RouteStopsFragment extends Fragment {
             @Override
             public void onQueryCompleted(Cursor cursor) {
                 mCursor = cursor;
-                BaseAdapter adapter = new RouteStopsAdapter(mCursor, activity);
+                RouteStopsAdapter adapter = new RouteStopsAdapter(mCursor, activity);
+                listView.setOnItemClickListener(adapter);
                 listView.setAdapter(adapter);
+
             }
         });
     }
