@@ -11,6 +11,22 @@
         -->
         <item name="android:divider">@color/divider</item>
     </style>
+
+    <style name="AppThemeTeal" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/primaryTeal</item>
+        <item name="colorPrimaryDark">@color/primary_darkTeal</item>
+        <item name="colorAccent">@color/accentTeal</item>
+        <item name="android:textColorPrimary">@color/primary_textTeal</item>
+        <item name="android:textColorSecondary">@color/secondary_textTeal</item>
+        <!--<item name="android:icon">@color/icons</item>
+        -->
+        <item name="android:divider">@color/dividerTeal</item>
+    </style>
+
+
+
+
+
     <!--
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
     </style>

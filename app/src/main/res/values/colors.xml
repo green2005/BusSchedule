@@ -13,4 +13,14 @@
     <color name="userHeaderBackgroundButton">#242833</color>
     <color name="userHeaderBackgroundButtonClicked">#868fa7</color>
 
+
+    <color name="primaryTeal">#009688</color>
+    <color name="primary_darkTeal">#00796B</color>
+    <color name="primary_lightTeal">#B2DFDB</color>
+    <color name="accentTeal">#795548</color>
+    <color name="primary_textTeal">#212121</color>
+    <color name="secondary_textTeal">#727272</color>
+    <color name="iconsTeal">#FFFFFF</color>
+    <color name="dividerTeal">#B6B6B6</color>
+
 </resources>
