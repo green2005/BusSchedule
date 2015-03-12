@@ -131,7 +131,7 @@ public class DBManager {
                 "  from [schedule] " +
                 String.format("  where([schedule].[idbus]=%s) and [schedule].[day]in('%s', '%s') ", idBus, dayName1, dayName2) +
                 String.format("     and ([schedule].[idstop]=%s) ", idStop) +
-                "  order by schedule.[" + SCHEDULE_TIME + "] ";
+                " order by   replace(replace(schedule.time, '00.','24.'), '01.','25.') ";
     }
 
     public Cursor getStops() {

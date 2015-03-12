@@ -31,7 +31,7 @@ import by.grodno.bus.R;
 
 public class DBUpdater {
     private static final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
-    private static final String MESSAGE_PREFIX = "zip";
+    private static final String MESSAGE_PREFIX = "grodno";
     Context mContext;
     Store mStore;
     ProgressDialog mProgressDialog;
@@ -41,38 +41,38 @@ public class DBUpdater {
         mContext = context;
     }
 
-    private Folder getYandexInboxFolder() throws Exception{
-            String host = "pop.yandex.ru";
-            String user = "green2005update";
-            String password = "androidupdate1";
+    private Folder getYandexInboxFolder() throws Exception {
+        String host = "pop.yandex.ru";
+        String user = "green2005update";
+        String password = "androidupdate1";
 
-            Properties pop3Props=new Properties();
+        Properties pop3Props = new Properties();
 
-            pop3Props.setProperty("mail.pop3.socketFactory.class", SSL_FACTORY);
-            pop3Props.setProperty("mail.pop3.socketFactory.fallback", "false");
-            pop3Props.setProperty("mail.pop3.port",  "995");
-            pop3Props.setProperty("mail.pop3.socketFactory.port", "995");
-            pop3Props.put("mail.smtp.starttls.enable", "true");
+        pop3Props.setProperty("mail.pop3.socketFactory.class", SSL_FACTORY);
+        pop3Props.setProperty("mail.pop3.socketFactory.fallback", "false");
+        pop3Props.setProperty("mail.pop3.port", "995");
+        pop3Props.setProperty("mail.pop3.socketFactory.port", "995");
+        pop3Props.put("mail.smtp.starttls.enable", "true");
 
-            // connect to my pop3 inbox
+        // connect to my pop3 inbox
 
 				 /*
-				 pop3Props = System.getProperties();
+                 pop3Props = System.getProperties();
 				session = Session.getDefaultInstance(pop3Props);
 				store = session.getStore("pop3");
 				*/
-            URLName url = new URLName("pop3", host, 995, "",
-                    user, password);
+        URLName url = new URLName("pop3", host, 995, "",
+                user, password);
 
-            Session session = Session.getInstance(pop3Props, null);
-            Store store = new POP3SSLStore(session, url);
+        Session session = Session.getInstance(pop3Props, null);
+        Store store = new POP3SSLStore(session, url);
 
-            store.connect(host, user, password);
+        store.connect(host, user, password);
 
 
-            Folder inbox = store.getFolder("Inbox");
-            inbox.open(Folder.READ_ONLY);
-            return inbox;
+        Folder inbox = store.getFolder("Inbox");
+        inbox.open(Folder.READ_ONLY);
+        return inbox;
 
     }
 
@@ -83,9 +83,9 @@ public class DBUpdater {
             if (messages.length > 0) {
                 for (javax.mail.Message message : messages) {
                     String s = message.getSubject();
-                    String s1 = s.substring(0, 3);
-                    if (!s1.equalsIgnoreCase(MESSAGE_PREFIX))
+                    if (!s.startsWith(MESSAGE_PREFIX)) {
                         continue;
+                    }
                     s = s.replace(MESSAGE_PREFIX, "");
                     String ds = s.substring(0, 2);
                     if ((ds.compareTo("31") == 1)
@@ -179,9 +179,9 @@ public class DBUpdater {
                     postSuccess(listener, handler, null);
                     return;
                 }
-               // new File("/mnt/external_sd/");
+                // new File("/mnt/external_sd/");
                 String newFileName = DBManager.getDBfileName(mContext) + ".tmp"; //"/mnt/sdcard/stb.db"; //DBManager.getDBfileName(mContext) + ".tmp";
-                File file  = new File(newFileName);
+                File file = new File(newFileName);
                 file.mkdirs();
 
                 String path = file.getParent();
@@ -198,7 +198,7 @@ public class DBUpdater {
                 for (int j = 0; j < multipart.getCount(); j++) {
                     BodyPart bp = multipart.getBodyPart(j);
                     ZipInputStream is = new ZipInputStream(bp.getInputStream());
-                    ZipEntry ze= is.getNextEntry();
+                    ZipEntry ze = is.getNextEntry();
                     byte[] buffer = new byte[2048];
                     int length = 0;
                     //multipart.getBodyPart(1).getSize()
@@ -297,8 +297,8 @@ public class DBUpdater {
     private boolean checkIsDbCorrect(String fileName) {
         try {
             SQLiteDatabase db = SQLiteDatabase.openDatabase(fileName, null,
-                    SQLiteDatabase.NO_LOCALIZED_COLLATORS  );
-          //  db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null).moveToFirst()
+                    SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+            //  db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null).moveToFirst()
             String sql = " select name from buses group by name order by length(name),name";
             Cursor cr = db.rawQuery(sql, null);
             if (cr.getCount() == 0) {
@@ -316,7 +316,7 @@ public class DBUpdater {
     }
 
 
-    public void checkUpdateExists(final UpdateListener listener ) {
+    public void checkUpdateExists(final UpdateListener listener) {
         final Handler handler = new Handler();
         new Thread(new Runnable() {
             @Override

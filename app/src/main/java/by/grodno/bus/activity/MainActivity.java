@@ -16,6 +16,7 @@ import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import by.grodno.bus.BusApplication;
@@ -43,14 +44,22 @@ public class MainActivity extends ActionBarActivity implements android.support.v
             UpdateListener listener = new UpdateListener() {
                 @Override
                 public void onError(String error) {
-                    ErrorHelper.showErrorDialog(error, MainActivity.this);
-                    finish();
+                    ErrorHelper.showErrorDialog(error, MainActivity.this, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            finish();
+                        }
+                    });
                 }
 
                 @Override
                 public void onError(int errorResId) {
-                    ErrorHelper.showErrorDialog(errorResId, MainActivity.this);
-                    finish();
+                    ErrorHelper.showErrorDialog(errorResId, MainActivity.this, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            finish();
+                        }
+                    });
                 }
 
                 @Override
