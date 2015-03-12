@@ -1,6 +1,7 @@
 package by.grodno.bus;
 
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -20,17 +21,21 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
         TabItem[] items = TabItem.values();
         TabItem item = items[position];
         switch (item){
-            case ROUTES:{
-                Fragment fragment = RoutesFragment.newInstance(null);
-                return fragment;
+            case BUSES:{
+                Bundle b = new Bundle();
+                b.putInt(RoutesFragment.TRANSPORTKIND, RoutesFragment.TransportKind.BUS.ordinal());
+                return RoutesFragment.newInstance(b);
+            }
+            case TROLL:{
+                Bundle b = new Bundle();
+                b.putInt(RoutesFragment.TRANSPORTKIND, RoutesFragment.TransportKind.TROLLEYBUS.ordinal());
+                return RoutesFragment.newInstance(b);
             }
             case STOPS:{
-                Fragment fragment = StopsFragment.newInstance(null);
-                return fragment;
+                return StopsFragment.newInstance(null);
             }
             case FAVOURITIES:{
-                Fragment fragment = FavouritesFragment.newInstance(null);
-                return fragment;
+                return FavouritesFragment.newInstance(null);
             }
         }
         return null;

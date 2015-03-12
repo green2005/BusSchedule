@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.io.File;
 
+import by.grodno.bus.fragments.RoutesFragment;
+
 public class DBManager {
 
     public static final String DBNAME = "busschedule.db";
@@ -74,9 +76,16 @@ public class DBManager {
         return "select  " + STOP_NAME + ", id as [" + STOP_ID + "]  from stops order by " + STOP_NAME;
     }
 
-    public static String getRoutesSQL() {
-        return " select " + BUS_NAME + ", id as [" + BUS_ID + "] from buses group by " + BUS_NAME +
-                " order by length(" + BUS_NAME + ")," + BUS_NAME;
+    public static String getRoutesSQL(RoutesFragment.TransportKind transportKind) {
+        switch (transportKind) {
+            case TROLLEYBUS:
+                return " select " + BUS_NAME + ", id as [" + BUS_ID + "] from buses where tr = 1 group by " + BUS_NAME +
+                        " order by length(" + BUS_NAME + ")," + BUS_NAME;
+            case BUS:
+                return " select " + BUS_NAME + ", id as [" + BUS_ID + "] from buses where tr = 0 group by " + BUS_NAME +
+                        " order by length(" + BUS_NAME + ")," + BUS_NAME;
+        }
+        return null;
     }
 
     public static String getStopRoutesSQL(String dayName1, String dayName2, String time, String idStop) {
@@ -115,7 +124,7 @@ public class DBManager {
                 " join buses buses on buses.[id]=[rlbusstops].[idbus] " +
                 " left join [schedule] on [schedule].[idbus]=buses.[id] " +
                 "       and [schedule].[idstop]=[rlbusstops].[idstop] " +
-                String.format("       and [schedule].[day]in('%s', '%s') ", dayName1, dayName2)+
+                String.format("       and [schedule].[day]in('%s', '%s') ", dayName1, dayName2) +
                 String.format(" and(([schedule].[time] > '%s')or([schedule].[time]<'04.00')) ", time) +
                 " join[stops] on stops.[id]=[rlbusstops].[idstop] " +
                 String.format(" where ([rlbusstops].[idbus]=%s)  ", idBus) +
@@ -134,20 +143,21 @@ public class DBManager {
                 "  order by schedule.[" + SCHEDULE_TIME + "] ";
     }
 
-    public Cursor getStops() {
-        if (!mdb.isOpen()) {
-            return null;
-        }
-        String sql = "select  trim(replace(name,\" (конечная)\",\"\")) as name "
-                + " from stops group by  trim(replace(name,\" (конечная)\",\"\"))";
-        Cursor cr = mdb.rawQuery(sql, null);
-        cr.moveToFirst();
-        return cr;
-    }
 
-    public int getRouteDirCount(String busName) {
-        String sql = "select count(*)  from buses where " + BUS_NAME + "=\"" + busName
-                + "\"";
+    public int getRouteDirCount(String busName, RoutesFragment.TransportKind kind) {
+        String sql = null;
+        switch (kind) {
+            case BUS: {
+                sql = "select count(*)  from buses where " + BUS_NAME + "=\"" + busName
+                        + "\" and tr = 0";
+                break;
+            }
+            case TROLLEYBUS: {
+                sql = "select count(*)  from buses where " + BUS_NAME + "=\"" + busName
+                        + "\" and tr = 1";
+                break;
+            }
+        }
         Cursor cr = mdb.rawQuery(sql, null);
         cr.moveToFirst();
         int c = cr.getInt(0);
@@ -155,9 +165,17 @@ public class DBManager {
         return c;
     }
 
-    public static String getRouteChildSQL(String routeName ) {
-        return "select direction, id as [" + BUS_ID + "] from buses where name=" + "\""
-                + routeName + "\"";
+    public static String getRouteChildSQL(String routeName, RoutesFragment.TransportKind kind) {
+        switch (kind) {
+            case TROLLEYBUS: {
+                return "select direction, id as [" + BUS_ID + "] from buses where name=" + "\""
+                        + routeName + "\" and tr = 1";
+            }
+            case BUS: {
+                return "select direction, id as [" + BUS_ID + "] from buses where name=" + "\""
+                        + routeName + "\" and tr = 0";
+            }
+        }
+        return null;
     }
-
 }

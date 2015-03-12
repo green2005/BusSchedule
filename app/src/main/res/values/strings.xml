@@ -4,7 +4,8 @@
     <string name="search_hint">Поиск</string>
     <string name="action_search">Поиск</string>
     <string name="scheduleDate">09.11.2012</string>
-    <string name="routes">Маршруты</string>
+    <string name="buses">Автобусы</string>
+    <string name="troll">Троллейбусы</string>
     <string name="stops">Остановки</string>
     <string name="favorities">Избранное</string>
     <string name="action_settings">Настройки</string>

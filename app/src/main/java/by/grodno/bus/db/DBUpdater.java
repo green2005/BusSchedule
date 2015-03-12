@@ -31,7 +31,7 @@ import by.grodno.bus.R;
 
 public class DBUpdater {
     private static final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
-    private static final String MESSAGE_PREFIX = "zip";
+    private static final String MESSAGE_PREFIX = "grodno";
     Context mContext;
     Store mStore;
     ProgressDialog mProgressDialog;
@@ -83,8 +83,7 @@ public class DBUpdater {
             if (messages.length > 0) {
                 for (javax.mail.Message message : messages) {
                     String s = message.getSubject();
-                    String s1 = s.substring(0, 3);
-                    if (!s1.equalsIgnoreCase(MESSAGE_PREFIX))
+                     if (!s.startsWith(MESSAGE_PREFIX))
                         continue;
                     s = s.replace(MESSAGE_PREFIX, "");
                     String ds = s.substring(0, 2);

@@ -1,7 +1,9 @@
 package by.grodno.bus;
 
 public enum TabItem {
-    ROUTES(R.string.routes, R.drawable.routes), STOPS(R.string.stops, R.drawable.stops),
+    BUSES(R.string.buses, R.drawable.routes),
+    TROLL(R.string.troll, R.drawable.routes),
+    STOPS(R.string.stops, R.drawable.stops),
     FAVOURITIES(R.string.favorities, R.drawable.favorities),;
 
     private int itemCaption;

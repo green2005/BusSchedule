@@ -21,12 +21,21 @@ import by.grodno.bus.db.DBManager;
 import by.grodno.bus.db.QueryHelper;
 
 public class RoutesFragment extends Fragment {
+    public enum TransportKind {
+        BUS,
+        TROLLEYBUS
+    }
+
     private Cursor mGroupCursor;
     private ExpandableListView mListView;
 
+    public static final String TRANSPORTKIND = "transportkind";
     private static final String POSITION = "position";
     private static final String ROUTES = "routes";
     private static final String EXPANDED = "expanded";
+
+    private TransportKind mKind;
+
 
     public static Fragment newInstance(Bundle args) {
         RoutesFragment fragment = new RoutesFragment();
@@ -60,7 +69,7 @@ public class RoutesFragment extends Fragment {
         if (activity == null) {
             return;
         }
-        SharedPreferences prefs = activity.getSharedPreferences(ROUTES, Activity.MODE_PRIVATE);
+        SharedPreferences prefs = activity.getSharedPreferences(getSaveKey(), Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(POSITION, mListView.getFirstVisiblePosition());
         Set<String> expanded = new HashSet<>();
@@ -78,7 +87,7 @@ public class RoutesFragment extends Fragment {
         if (activity == null) {
             return;
         }
-        SharedPreferences prefs = activity.getSharedPreferences(ROUTES, Activity.MODE_PRIVATE);
+        SharedPreferences prefs = activity.getSharedPreferences(getSaveKey(), Activity.MODE_PRIVATE);
         int pos = prefs.getInt(POSITION, 0);
         scrollToPos(pos);
         Set<String> expanded = prefs.getStringSet(EXPANDED, null);
@@ -87,6 +96,10 @@ public class RoutesFragment extends Fragment {
                 mListView.expandGroup(Integer.parseInt(s));
             }
         }
+    }
+
+    private String getSaveKey(){
+        return ROUTES + mKind.toString();
     }
 
     private void scrollToPos(int pos) {
@@ -99,6 +112,16 @@ public class RoutesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_routes, null);
+        Bundle b = getArguments();
+
+        if (b != null) {
+            int i = b.getInt(TRANSPORTKIND, TransportKind.BUS.ordinal());
+            if (i == TransportKind.BUS.ordinal()) {
+                mKind = TransportKind.BUS;
+            } else if (i == TransportKind.TROLLEYBUS.ordinal()) {
+                mKind = TransportKind.TROLLEYBUS;
+            }
+        }
         initList(view);
         return view;
     }
@@ -111,10 +134,10 @@ public class RoutesFragment extends Fragment {
         mListView = (ExpandableListView) fragmentView.findViewById(R.id.routesList);
 
         final DBManager dbManager = ((BusApplication) activity.getApplication()).getDBManager();
-        new QueryHelper(dbManager).rawQuery(DBManager.getRoutesSQL(), new QueryHelper.QueryListener() {
+        new QueryHelper(dbManager).rawQuery(DBManager.getRoutesSQL(mKind), new QueryHelper.QueryListener() {
             @Override
             public void onQueryCompleted(Cursor cursor) {
-                RouteAdapter adapter = new RouteAdapter(activity, cursor, dbManager);
+                RouteAdapter adapter = new RouteAdapter(activity, cursor, dbManager, mKind);
                 mListView.setOnChildClickListener(adapter);
                 mListView.setAdapter(adapter);
                 mGroupCursor = cursor;
