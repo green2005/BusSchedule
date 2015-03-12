@@ -16,6 +16,7 @@ import by.grodno.bus.R;
 import by.grodno.bus.activity.RouteStopsActivity;
 import by.grodno.bus.db.DBManager;
 import by.grodno.bus.db.QueryHelper;
+import by.grodno.bus.fragments.RoutesFragment;
 
 public class RouteAdapter extends BaseExpandableListAdapter implements ExpandableListView.OnChildClickListener {
     private Cursor mGroupCursor;
@@ -24,12 +25,14 @@ public class RouteAdapter extends BaseExpandableListAdapter implements Expandabl
     private Context mContext;
     private QueryHelper mQueryHelper;
     private Handler mHandler;
+    private RoutesFragment.TransportKind mTransportKind;
 
-    public RouteAdapter(Context context, Cursor groupCursor, DBManager dbManager) {
+    public RouteAdapter(Context context, Cursor groupCursor, DBManager dbManager, RoutesFragment.TransportKind transportKind) {
         mInflater = LayoutInflater.from(context);
         mDBManager = dbManager;
         mGroupCursor = groupCursor;
         mContext = context;
+        mTransportKind = transportKind;
         mQueryHelper = new QueryHelper(mDBManager);
         mHandler = new Handler();
     }
@@ -57,7 +60,7 @@ public class RouteAdapter extends BaseExpandableListAdapter implements Expandabl
         mGroupCursor.moveToPosition(groupPosition);
         String name = mGroupCursor.getString(0);
         final TextView childText = (TextView) cnView.findViewById(R.id.textChild);
-        String sql = DBManager.getRouteChildSQL(name);
+        String sql = DBManager.getRouteChildSQL(name, mTransportKind);
 
         mQueryHelper.rawQuery(sql, new QueryHelper.QueryListener() {
             @Override
@@ -73,16 +76,13 @@ public class RouteAdapter extends BaseExpandableListAdapter implements Expandabl
                 });
             }
         });
-
-        //String s = (String) getChild(groupPosition, childPosition);
-        //childText.setText(s);
         return cnView;
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
         mGroupCursor.moveToPosition(groupPosition);
-        return mDBManager.getRouteDirCount(mGroupCursor.getString(0));
+        return mDBManager.getRouteDirCount(mGroupCursor.getString(0), mTransportKind);
     }
 
     @Override
