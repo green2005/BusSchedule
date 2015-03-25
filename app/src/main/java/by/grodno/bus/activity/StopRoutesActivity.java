@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 
 import by.grodno.bus.R;
+import by.grodno.bus.db.DBManager;
 import by.grodno.bus.fragments.StopRoutesFragment;
 
 public class StopRoutesActivity extends ActionBarActivity {
@@ -22,6 +23,9 @@ public class StopRoutesActivity extends ActionBarActivity {
         fragmentManager.beginTransaction();
         FragmentTransaction ft = fragmentManager.beginTransaction();
         Bundle bundle = getIntent().getExtras();
+        String stopName = bundle.getString(DBManager.STOP_NAME);
+        setTitle(stopName);
+        
         Fragment fragment = StopRoutesFragment.getNewFragment(bundle);
         ft.replace(R.id.container, fragment);
         ft.commit();

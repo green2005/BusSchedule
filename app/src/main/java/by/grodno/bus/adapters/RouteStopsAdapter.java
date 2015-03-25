@@ -1,15 +1,14 @@
 package by.grodno.bus.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import by.grodno.bus.CalendarHelper;
@@ -55,6 +54,12 @@ public class RouteStopsAdapter extends BaseAdapter implements AdapterView.OnItem
         TextView tvTitle = (TextView)cnView.findViewById(R.id.routeNameView);
         TextView tvTime1 = (TextView)cnView.findViewById(R.id.time1View);
         TextView tvTime2 = (TextView)cnView.findViewById(R.id.time2View);
+        ImageView imageView = (ImageView) cnView.findViewById(R.id.trans_kind);
+        if ("0".equals(mCursor.getString(mCursor.getColumnIndex(DBManager.TRANSPORT_KIND)))) {
+            imageView.setImageResource(R.drawable.bus);
+        } else {
+            imageView.setImageResource(R.drawable.trolleybus);
+        }
         String name = mCursor.getString(mCursor.getColumnIndex(DBManager.STOP_NAME));
         tvTitle.setText(name);
         tvTime1.setText(mCursor.getString(mCursor.getColumnIndex(DBManager.SCHEDULE_TIME)));

@@ -3,12 +3,12 @@ package by.grodno.bus.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import by.grodno.bus.CalendarHelper;
@@ -16,7 +16,7 @@ import by.grodno.bus.R;
 import by.grodno.bus.activity.BusStopActivity;
 import by.grodno.bus.db.DBManager;
 
-public class StopRoutesAdapter extends BaseAdapter implements AdapterView.OnItemClickListener{
+public class StopRoutesAdapter extends BaseAdapter implements AdapterView.OnItemClickListener {
     private LayoutInflater mInflater;
     private Context mContext;
     private Cursor mCursor;
@@ -54,15 +54,21 @@ public class StopRoutesAdapter extends BaseAdapter implements AdapterView.OnItem
         TextView tvName = (TextView) view.findViewById(R.id.routeNameView);
         TextView tvTime1 = (TextView) view.findViewById(R.id.time1View);
         TextView tvTime2 = (TextView) view.findViewById(R.id.time2View);
+        ImageView imageView = (ImageView) view.findViewById(R.id.trans_kind);
+        if ("0".equals(mCursor.getString(mCursor.getColumnIndex(DBManager.TRANSPORT_KIND)))) {
+            imageView.setImageResource(R.drawable.bus);
+        } else {
+            imageView.setImageResource(R.drawable.trolleybus);
+        }
         String name = mCursor.getString(mCursor.getColumnIndex(DBManager.BUS_NAME)) +
                 " " + mCursor.getString(mCursor.getColumnIndex(DBManager.BUS_DIRECTION));
         tvName.setText(name);
-
         tvTime1.setText(mCursor.getString(mCursor.getColumnIndex(DBManager.SCHEDULE_TIME)));
         int sqlMinutes = mCursor.getInt(mCursor.getColumnIndex(DBManager.MINUTES));
         tvTime2.setText(CalendarHelper.getTimeDiff(mContext, sqlMinutes));
         return view;
     }
+
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

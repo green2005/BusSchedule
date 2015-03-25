@@ -6,13 +6,24 @@ import android.text.TextUtils;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 public class CalendarHelper {
     private static int getDayNumber() {
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
         return c.get(Calendar.DAY_OF_WEEK);
+    }
+
+    public static String getHour(){
+        SimpleDateFormat sdfTime = new SimpleDateFormat("HH");
+        Date now = new Date();
+        return sdfTime.format(now).replace("00.", "24.");
+    }
+
+    public static String getDate(){
+        SimpleDateFormat sdfTime = new SimpleDateFormat("dd.MM.yyyy");
+        Date now = new Date();
+        return sdfTime.format(now);
     }
 
     public static String getDay1(Context context) {

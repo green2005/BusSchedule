@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Environment;
 import android.os.Handler;
 import android.text.TextUtils;
 
@@ -26,19 +25,21 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.URLName;
 
+import by.grodno.bus.CalendarHelper;
 import by.grodno.bus.R;
 
 
 public class DBUpdater {
     private static final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
     private static final String MESSAGE_PREFIX = "grodno";
-    Context mContext;
     Store mStore;
     ProgressDialog mProgressDialog;
-    private static final String UPDATE_DATE = "update_date";
 
-    public DBUpdater(Context context) {
-        mContext = context;
+    private static final String UPDATE_DATE = "update_date";
+    private static final String CHECK_DATE = "check_date";
+
+    public DBUpdater() {
+
     }
 
     private Folder getYandexInboxFolder() throws Exception {
@@ -87,6 +88,9 @@ public class DBUpdater {
                         continue;
                     }
                     s = s.replace(MESSAGE_PREFIX, "");
+                    if (!TextUtils.isEmpty(s) && s.equals(lastUpdated)){
+                        continue;
+                    }
                     String ds = s.substring(0, 2);
                     if ((ds.compareTo("31") == 1)
                             || (ds.compareTo("00") == -1))
@@ -128,7 +132,7 @@ public class DBUpdater {
         return null;
     }
 
-    private void checkScheduleUpdateExists(final UpdateListener listener, String lastUpdated, Handler handler) {
+    private void checkScheduleUpdateExists(final UpdateListener listener, String lastUpdated, Handler handler, Context context) {
         try {
             Folder folder;
             try {
@@ -144,10 +148,10 @@ public class DBUpdater {
             try {
                 Message msg = getLastMessage(folder, lastUpdated, listener);
                 if (msg == null) {
-                    postSuccess(listener, handler, null);
+                    postSuccess(listener, handler, null, context);
                 } else {
                     final String updated = msg.getSubject().replace(MESSAGE_PREFIX, "");
-                    postSuccess(listener, handler, updated);
+                    postSuccess(listener, handler, updated, context);
                 }
             } finally {
                 folder.close(false);
@@ -159,7 +163,7 @@ public class DBUpdater {
         }
     }
 
-    private void updateSchedule(final UpdateListener listener, String lastUpdated, Handler handler) {
+    private void updateSchedule(final UpdateListener listener, String lastUpdated, Handler handler,final Context context) {
         try {
             Folder folder;
             try {
@@ -176,11 +180,11 @@ public class DBUpdater {
             try {
                 Message msg = getLastMessage(folder, lastUpdated, listener);
                 if (msg == null) {
-                    postSuccess(listener, handler, null);
+                    postSuccess(listener, handler, null, context);
                     return;
                 }
                 // new File("/mnt/external_sd/");
-                String newFileName = DBManager.getDBfileName(mContext) + ".tmp"; //"/mnt/sdcard/stb.db"; //DBManager.getDBfileName(mContext) + ".tmp";
+                String newFileName = DBManager.getDBfileName(context) + ".tmp"; //"/mnt/sdcard/stb.db"; //DBManager.getDBfileName(mContext) + ".tmp";
                 File file = new File(newFileName);
                 file.mkdirs();
 
@@ -214,11 +218,11 @@ public class DBUpdater {
                 stream.close();
                 if (checkIsDbCorrect(newFileName)) {
                     File tmpfile = new File(newFileName);
-                    String dbFileName = DBManager.getDBfileName(mContext);
+                    String dbFileName = DBManager.getDBfileName(context);
                     File dbFile = new File(dbFileName);
                     if (tmpfile.renameTo(dbFile)) {
                         final String updatedDate = msg.getSubject().replace(MESSAGE_PREFIX, "");
-                        postSuccess(listener, handler, updatedDate);
+                        postSuccess(listener, handler, updatedDate, context);
                     } else {
                         postError(listener, handler, R.string.update_error);
                     }
@@ -269,26 +273,32 @@ public class DBUpdater {
         });
     }
 
-    private void postSuccess(final UpdateListener listener, final Handler handler, final String updateDate) {
+    private void postSuccess(final UpdateListener listener, final Handler handler, final String updateDate, final Context context) {
         handler.post(new Runnable() {
             @Override
             public void run() {
                 hideProgress();
                 if (!TextUtils.isEmpty(updateDate)) {
-                    setUpdateDate(updateDate);
+                    setUpdateDate(updateDate, context);
                 }
                 listener.onSuccess(updateDate);
             }
         });
     }
 
-    private String getUpdateDate() {
-        SharedPreferences prefs = mContext.getSharedPreferences(UPDATE_DATE, Context.MODE_PRIVATE);
+    private static String getPreferencesFileName(Context context) {
+        return context.getPackageName();
+    }
+
+    private String getUpdateDate(Context context) {
+        Context appContext = context.getApplicationContext();
+        SharedPreferences prefs = appContext.getSharedPreferences(getPreferencesFileName(appContext), Context.MODE_PRIVATE);
         return prefs.getString(UPDATE_DATE, null);
     }
 
-    private void setUpdateDate(String updateDate) {
-        SharedPreferences prefs = mContext.getSharedPreferences(UPDATE_DATE, Context.MODE_PRIVATE);
+    private void setUpdateDate(String updateDate, Context context) {
+        Context appContext = context.getApplicationContext();
+        SharedPreferences prefs = appContext.getSharedPreferences(getPreferencesFileName(appContext), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(UPDATE_DATE, updateDate);
         editor.apply();
@@ -316,30 +326,42 @@ public class DBUpdater {
     }
 
 
-    public void checkUpdateExists(final UpdateListener listener) {
-        final Handler handler = new Handler();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                checkScheduleUpdateExists(listener, getUpdateDate(), handler);
-            }
-        }).start();
-    }
 
-    public void updateDB(final UpdateListener listener, final boolean silent) {
+    public void updateDB(final UpdateListener listener, final boolean silent, final Context context) {
         final Handler handler = new Handler();
         if (!silent) {
-            mProgressDialog = new ProgressDialog(mContext);
+            mProgressDialog = new ProgressDialog(context);
             mProgressDialog.setTitle(R.string.please_wait);
-            mProgressDialog.setMessage(mContext.getString(R.string.db_is_updating));
+            mProgressDialog.setMessage(context.getString(R.string.db_is_updating));
             mProgressDialog.setCancelable(false);
             mProgressDialog.show();
         }
         new Thread(new Runnable() {
             @Override
             public void run() {
-                updateSchedule(listener, getUpdateDate(), handler);
+                updateSchedule(listener, getUpdateDate(context), handler, context);
             }
         }).start();
+    }
+
+    public static boolean needCheckUpdate(Context context) {
+        Context appContext = context.getApplicationContext();
+        SharedPreferences prefs = appContext.getSharedPreferences(getPreferencesFileName(appContext), Context.MODE_PRIVATE);
+        String lastChecked = prefs.getString(CHECK_DATE, "");
+        if (TextUtils.isEmpty(lastChecked)){
+            return true;
+        } else
+        {
+            String currentDate = CalendarHelper.getDate();
+            return !currentDate.equals(lastChecked);
+        }
+    }
+
+    public static void setCheckDate(Context context) {
+        Context appContext = context.getApplicationContext();
+        SharedPreferences.Editor editor = appContext.getSharedPreferences(getPreferencesFileName(appContext),
+                Context.MODE_PRIVATE).edit();
+        editor.putString(CHECK_DATE, CalendarHelper.getDate());
+        editor.apply();
     }
 }

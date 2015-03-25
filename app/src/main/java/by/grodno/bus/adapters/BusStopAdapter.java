@@ -11,16 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import by.grodno.bus.CalendarHelper;
 import by.grodno.bus.R;
 
 public class BusStopAdapter extends BaseAdapter {
-    //private Context mContext;
+    private Context mContext;
     private LayoutInflater mInflater;
     private Map<String, List<String>> mTimesMap;
     private List<String> mHours;
+    private String mCurrentHour = CalendarHelper.getHour();
 
     public BusStopAdapter(Context context, Map<String, List<String>> timesMap, List<String> hours) {
-      //  mContext = context;
+        mContext = context;
         mInflater = LayoutInflater.from(context);
         mTimesMap = timesMap;
         mHours = hours;
@@ -64,6 +66,14 @@ public class BusStopAdapter extends BaseAdapter {
             holder = (ViewHolder) cnView.getTag();
         }
         String hour = mHours.get(position);
+        if (mCurrentHour.equals(hour)){
+            int currentColor = mContext.getResources().getColor(android.R.color.holo_blue_light);
+            cnView.setBackgroundColor(currentColor);
+        } else
+        {
+            int color = mContext.getResources().getColor(android.R.color.transparent);
+            cnView.setBackgroundColor(color);
+        }
         holder.tvHour.setText(hour);
         List<String> minutes = mTimesMap.get(hour);
         int i = 0;
@@ -74,7 +84,7 @@ public class BusStopAdapter extends BaseAdapter {
             }
             i++;
         }
-        for (int j = 0; j > i; j++) {
+        for (int j = i; j < 10; j++) {
             holder.tvItems.get(j).setVisibility(View.GONE);
         }
         return cnView;

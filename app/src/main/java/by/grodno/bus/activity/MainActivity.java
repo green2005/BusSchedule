@@ -1,17 +1,13 @@
 package by.grodno.bus.activity;
 
-import android.annotation.TargetApi;
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
-import android.database.MatrixCursor;
-import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -25,12 +21,12 @@ import by.grodno.bus.R;
 import by.grodno.bus.TabItem;
 import by.grodno.bus.TabsPagerAdapter;
 import by.grodno.bus.db.DBManager;
+import by.grodno.bus.db.DBUpdater;
 import by.grodno.bus.db.UpdateListener;
 
 public class MainActivity extends ActionBarActivity implements android.support.v7.app.ActionBar.TabListener {
     private ViewPager mViewPager;
     private DBManager mDBManager;
-    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,48 +36,74 @@ public class MainActivity extends ActionBarActivity implements android.support.v
 
         mDBManager = new DBManager(this);
         ((BusApplication) getApplication()).setDBManager(mDBManager);
-        if (!mDBManager.dbExists()) {
+        if ((DBUpdater.needCheckUpdate(this)) || (!mDBManager.dbExists())) {
+            final boolean silent = mDBManager.dbExists();
             UpdateListener listener = new UpdateListener() {
                 @Override
                 public void onError(String error) {
-                    ErrorHelper.showErrorDialog(error, MainActivity.this, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            finish();
-                        }
-                    });
+                    if (!silent) {
+                        ErrorHelper.showErrorDialog(error, MainActivity.this, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                finish();
+                            }
+                        });
+                    }
                 }
 
                 @Override
                 public void onError(int errorResId) {
-                    ErrorHelper.showErrorDialog(errorResId, MainActivity.this, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            finish();
-                        }
-                    });
+                    if (!silent) {
+                        ErrorHelper.showErrorDialog(errorResId, MainActivity.this, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                finish();
+                            }
+                        });
+                    }
                 }
 
                 @Override
                 public void onSuccess(String updatedDate) {
-                    if (!TextUtils.isEmpty(updatedDate)) {
-                        mDBManager.openDB();
-                        initTabs();
+                    if (!silent) {
+                        if (!TextUtils.isEmpty(updatedDate)) {
+                            mDBManager.openDB();
+                            initTabs();
+                        } else {
+                            finish();
+                        }
                     } else {
-                        finish();
+                        if (!TextUtils.isEmpty(updatedDate)) {
+                            Toast.makeText(MainActivity.this, R.string.scheduleUpdated, Toast.LENGTH_LONG).show();
+                            restartApp();
+                        }
                     }
                 }
             };
-            mDBManager.updateDB(listener, false);
+            mDBManager.updateDB(listener, silent, this);
         } else {
             initTabs();
         }
 
+        if (mDBManager.dbExists()){
+            mDBManager.openDB();
+            initTabs();
+        }
+
+       // DBUpdater.setCheckDate(this);
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             Toast.makeText(this, query, Toast.LENGTH_LONG).show();//doMySearch(query);
         }
+    }
+
+    private void restartApp() {
+        Intent i = getPackageManager()
+                .getLaunchIntentForPackage(getPackageName());
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i);
+        finish();
     }
 
     private void initTabs() {
@@ -91,7 +113,8 @@ public class MainActivity extends ActionBarActivity implements android.support.v
         TabItem items[] = TabItem.values();
         for (TabItem item : items) {
             tab = actionBar.newTab();
-            tab.setText(item.getText());
+
+            //tab.setText(item.getText());
             tab.setIcon(item.getIcon());
             tab.setTabListener(this);
             actionBar.addTab(tab);
@@ -126,6 +149,16 @@ public class MainActivity extends ActionBarActivity implements android.support.v
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
+        MenuItem settingsItem = menu.findItem(R.id.action_settings);
+        settingsItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(MainActivity.this, PrefActivity.class);
+                startActivity(intent);
+                return true;
+            }
+        });
+
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setQueryHint(
@@ -136,6 +169,7 @@ public class MainActivity extends ActionBarActivity implements android.support.v
                 Toast.makeText(MainActivity.this, "Здесь будет поиск", Toast.LENGTH_SHORT).show();
                 return true;
             }
+
             @Override
             public boolean onQueryTextChange(String s) {
                 return true;

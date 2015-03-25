@@ -132,7 +132,7 @@ public class RouteAdapter extends BaseExpandableListAdapter implements Expandabl
         String busId = (String)v.getTag();
         Bundle b = new Bundle();
         mGroupCursor.moveToPosition(groupPosition);
-        //String busId = mGroupCursor.getString(mGroupCursor.getColumnIndex(DBManager.BUS_ID));
+        b.putString(DBManager.BUS_NAME, mGroupCursor.getString(0));
         b.putString(DBManager.BUS_ID, busId);
         stops.putExtras(b);
         mContext.startActivity(stops);

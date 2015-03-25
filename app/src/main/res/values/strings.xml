@@ -26,5 +26,11 @@
     <string name="hour">ч</string>
     <string name="minute">м</string>
     <string name="ina">через</string>
-
+    <string name="updatenotneeded">Обновление не требуется</string>
+    <string name="updatesucceded">Обновление завершено</string>
+    <string name="scheduleUpdated">Расписание обновлено</string>
+    <string name="errormarket">Could not launch the market</string>
+    <string name="updateKey">updateIt</string>
+    <string name="rateKey">rateIt</string>
+    <string name="feedBackMail">mailto:greennn_2005@gmail.com</string>
 </resources>

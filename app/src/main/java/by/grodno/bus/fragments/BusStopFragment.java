@@ -65,6 +65,8 @@ public class BusStopFragment extends Fragment {
             @Override
             public void onQueryCompleted(Cursor cursor) {
                 processQueryResult(cursor, listView);
+
+
             }
         });
     }
@@ -100,6 +102,15 @@ public class BusStopFragment extends Fragment {
                             BaseAdapter adapter = new BusStopAdapter(activity, timesMap, hours);
                             listView.setAdapter(adapter);
                             adapter.notifyDataSetChanged();
+                            int ix = hours.indexOf(CalendarHelper.getHour());
+                            if (ix > -1){
+                                scrollToPos(ix, listView);
+                            } else
+                            {
+                                if (CalendarHelper.getHour().compareTo("23.")>0){
+                                    scrollToPos(hours.size(), listView);
+                                }
+                            }
                         }
                     });
                 } finally {
@@ -109,4 +120,10 @@ public class BusStopFragment extends Fragment {
         }).start();
     }
 
+    private void scrollToPos(int pos, ListView listView) {
+        if (pos > listView.getCount() || pos < 0) {
+            return;
+        }
+        listView.setSelection(pos);
+    }
 }

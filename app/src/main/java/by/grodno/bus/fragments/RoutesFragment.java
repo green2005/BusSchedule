@@ -10,10 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
-
 import java.util.HashSet;
 import java.util.Set;
-
 import by.grodno.bus.BusApplication;
 import by.grodno.bus.R;
 import by.grodno.bus.adapters.RouteAdapter;
