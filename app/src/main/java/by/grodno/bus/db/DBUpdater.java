@@ -88,7 +88,7 @@ public class DBUpdater {
                         continue;
                     }
                     s = s.replace(MESSAGE_PREFIX, "");
-                    if (!TextUtils.isEmpty(s) && s.equals(lastUpdated)){
+                    if (!TextUtils.isEmpty(s) && s.equals(lastUpdated)) {
                         continue;
                     }
                     String ds = s.substring(0, 2);
@@ -132,38 +132,7 @@ public class DBUpdater {
         return null;
     }
 
-    private void checkScheduleUpdateExists(final UpdateListener listener, String lastUpdated, Handler handler, Context context) {
-        try {
-            Folder folder;
-            try {
-                folder = getYandexInboxFolder();
-            } catch (final Exception e) {
-                postError(listener, handler, e.getMessage());
-                return;
-            }
-            if (folder == null) {
-                postError(listener, handler, R.string.check_inet_connection);
-                return;
-            }
-            try {
-                Message msg = getLastMessage(folder, lastUpdated, listener);
-                if (msg == null) {
-                    postSuccess(listener, handler, null, context);
-                } else {
-                    final String updated = msg.getSubject().replace(MESSAGE_PREFIX, "");
-                    postSuccess(listener, handler, updated, context);
-                }
-            } finally {
-                folder.close(false);
-                if (mStore != null)
-                    mStore.close();
-            }
-        } catch (Exception e) {
-            postError(listener, handler, R.string.update_error);
-        }
-    }
-
-    private void updateSchedule(final UpdateListener listener, String lastUpdated, Handler handler,final Context context) {
+    private void updateSchedule(final UpdateListener listener, String lastUpdated, Handler handler, final Context context) {
         try {
             Folder folder;
             try {
@@ -178,15 +147,18 @@ public class DBUpdater {
                 return;
             }
             try {
-                Message msg = getLastMessage(folder, lastUpdated, listener);
+                Message msg = getLastMessage(folder,
+                        lastUpdated,
+                        listener);
                 if (msg == null) {
                     postSuccess(listener, handler, null, context);
                     return;
                 }
-                // new File("/mnt/external_sd/");
-                String newFileName = DBManager.getDBfileName(context) + ".tmp"; //"/mnt/sdcard/stb.db"; //DBManager.getDBfileName(mContext) + ".tmp";
+                String newFileName = DBManager.getDBfileName(context) + ".tmp";
                 File file = new File(newFileName);
-                file.mkdirs();
+                if (!file.mkdirs()) {
+                    return;
+                }
 
                 String path = file.getParent();
                 String fileName = file.getName();
@@ -203,12 +175,10 @@ public class DBUpdater {
                     BodyPart bp = multipart.getBodyPart(j);
                     ZipInputStream is = new ZipInputStream(bp.getInputStream());
                     ZipEntry ze = is.getNextEntry();
-                    byte[] buffer = new byte[2048];
                     int length = 0;
                     //multipart.getBodyPart(1).getSize()
                     android.os.Message msg2 = new android.os.Message();
-
-
+                    byte[] buffer = new byte[2048];
                     while ((length = is.read(buffer)) > 0) {
                         stream.write(buffer, 0, length);
                     }
@@ -248,8 +218,9 @@ public class DBUpdater {
     }
 
     private void hideProgress() {
-        if (mProgressDialog != null) {
+        if ((mProgressDialog != null) && (mProgressDialog.isShowing())) {
             mProgressDialog.dismiss();
+            mProgressDialog = null;
         }
     }
 
@@ -286,14 +257,18 @@ public class DBUpdater {
         });
     }
 
-    private static String getPreferencesFileName(Context context) {
+    public static String getPreferencesFileName(Context context) {
         return context.getPackageName();
     }
 
-    private String getUpdateDate(Context context) {
+    private String getUpdateDate(Context context, boolean dbExists) {
         Context appContext = context.getApplicationContext();
         SharedPreferences prefs = appContext.getSharedPreferences(getPreferencesFileName(appContext), Context.MODE_PRIVATE);
-        return prefs.getString(UPDATE_DATE, null);
+        if (!dbExists) {
+            return "";
+        } else {
+            return prefs.getString(UPDATE_DATE, null);
+        }
     }
 
     private void setUpdateDate(String updateDate, Context context) {
@@ -308,7 +283,6 @@ public class DBUpdater {
         try {
             SQLiteDatabase db = SQLiteDatabase.openDatabase(fileName, null,
                     SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-            //  db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null).moveToFirst()
             String sql = " select name from buses group by name order by length(name),name";
             Cursor cr = db.rawQuery(sql, null);
             if (cr.getCount() == 0) {
@@ -326,8 +300,7 @@ public class DBUpdater {
     }
 
 
-
-    public void updateDB(final UpdateListener listener, final boolean silent, final Context context) {
+    public void updateDB(final UpdateListener listener, final boolean silent, final Context context, final boolean dbExists) {
         final Handler handler = new Handler();
         if (!silent) {
             mProgressDialog = new ProgressDialog(context);
@@ -339,7 +312,7 @@ public class DBUpdater {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                updateSchedule(listener, getUpdateDate(context), handler, context);
+                updateSchedule(listener, getUpdateDate(context, dbExists), handler, context);
             }
         }).start();
     }
@@ -347,11 +320,15 @@ public class DBUpdater {
     public static boolean needCheckUpdate(Context context) {
         Context appContext = context.getApplicationContext();
         SharedPreferences prefs = appContext.getSharedPreferences(getPreferencesFileName(appContext), Context.MODE_PRIVATE);
+        String autoUpdateKey = context.getResources().getString(R.string.autoupdate);
         String lastChecked = prefs.getString(CHECK_DATE, "");
-        if (TextUtils.isEmpty(lastChecked)){
+        boolean autoUpdate = prefs.getBoolean(autoUpdateKey, true);
+        if (!autoUpdate) {
+            return false;
+        }
+        if (TextUtils.isEmpty(lastChecked)) {
             return true;
-        } else
-        {
+        } else {
             String currentDate = CalendarHelper.getDate();
             return !currentDate.equals(lastChecked);
         }

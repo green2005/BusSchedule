@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<!--
+xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".BusStopActivity"
+    -->
+
+    <item
+        android:id="@+id/action_addtopref_item"
+        android:icon="@android:drawable/star_big_off"
+        android:title="@string/action_addpref"
+        android:visible="true" />
+
+    <item
+        android:id="@+id/action_delfrompref_item"
+        android:title="@string/action_delpref"
+        android:icon="@android:drawable/star_big_on"
+        android:visible="false" />
+    <item
+        android:id="@+id/action_allbuses_item"
+        android:title="@string/allbuses"
+        android:icon="@drawable/bus"
+        android:visible="true" />
+</menu>

@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/action_addtopref"
+        android:title="@string/action_addpref"
+        android:icon="@android:drawable/star_big_off"
+        app:showAsAction="ifRoom|collapseActionView" />
+    <item
+        android:id="@+id/action_delfrompref"
+        android:title="@string/action_delpref"
+        android:icon="@android:drawable/star_big_on"
+        app:showAsAction="ifRoom|collapseActionView" />
+
+</menu>

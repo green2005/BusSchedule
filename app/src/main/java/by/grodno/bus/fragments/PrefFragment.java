@@ -17,6 +17,7 @@ import by.grodno.bus.BusApplication;
 import by.grodno.bus.ErrorHelper;
 import by.grodno.bus.R;
 import by.grodno.bus.db.DBManager;
+import by.grodno.bus.db.DBUpdater;
 import by.grodno.bus.db.UpdateListener;
 
 public class PrefFragment extends PreferenceFragment {
@@ -28,6 +29,7 @@ public class PrefFragment extends PreferenceFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getPreferenceManager().setSharedPreferencesName(DBUpdater.getPreferencesFileName(getActivity().getApplication()));
         addPreferencesFromResource(R.xml.preferences);
     }
 

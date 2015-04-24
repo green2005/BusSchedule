@@ -1,14 +1,25 @@
 <resources>
+    <!-- style the list navigation -->
+
+
+
+    <style name="CustomSearchView" parent="Base.TextAppearance.AppCompat">
+        <item name="android:color">@android:color/white</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="android:Widget.ListPopupWindow">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
         <item name="android:textColorPrimary">@color/primary_text</item>
         <item name="android:textColorSecondary">@color/secondary_text</item>
-        <!--<item name="android:icon">@color/icons</item>
-        -->
+
+        <item name="android:selectableItemBackground">@drawable/ad_selectable_background</item>
+        <item name="android:popupMenuStyle">@style/CustomSearchView</item>
+        <item name="android:dropDownListViewStyle">@style/CustomSearchView</item>
+
         <item name="android:divider">@color/divider</item>
     </style>
 
@@ -18,13 +29,13 @@
         <item name="colorAccent">@color/accentTeal</item>
         <item name="android:textColorPrimary">@color/primary_textTeal</item>
         <item name="android:textColorSecondary">@color/secondary_textTeal</item>
-        <!--<item name="android:icon">@color/icons</item>
-        -->
+
+        <item name="android:selectableItemBackground">@drawable/ad_selectable_background</item>
+        <item name="android:popupMenuStyle">@style/CustomSearchView</item>
+        <item name="android:dropDownListViewStyle">@style/CustomSearchView</item>
+
         <item name="android:divider">@color/dividerTeal</item>
     </style>
-
-
-
 
 
     <!--

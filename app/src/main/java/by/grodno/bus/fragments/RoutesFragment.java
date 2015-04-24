@@ -3,6 +3,7 @@ package by.grodno.bus.fragments;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,8 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+
 import java.util.HashSet;
 import java.util.Set;
+
 import by.grodno.bus.BusApplication;
 import by.grodno.bus.R;
 import by.grodno.bus.adapters.RouteAdapter;
@@ -64,7 +67,7 @@ public class RoutesFragment extends Fragment {
 
     private void saveState() {
         Activity activity = getActivity();
-        if (activity == null) {
+        if (activity == null || mListView == null) {
             return;
         }
         SharedPreferences prefs = activity.getSharedPreferences(getSaveKey(), Activity.MODE_PRIVATE);
@@ -76,28 +79,40 @@ public class RoutesFragment extends Fragment {
                 expanded.add(String.valueOf(i));
             }
         }
-        editor.putStringSet(EXPANDED, expanded);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            editor.putStringSet(EXPANDED, expanded);
+        }
         editor.apply();
     }
 
     private void restoreState() {
         Activity activity = getActivity();
-        if (activity == null) {
+        if (activity == null || mListView == null) {
             return;
         }
         SharedPreferences prefs = activity.getSharedPreferences(getSaveKey(), Activity.MODE_PRIVATE);
         int pos = prefs.getInt(POSITION, 0);
         scrollToPos(pos);
-        Set<String> expanded = prefs.getStringSet(EXPANDED, null);
+        Set<String> expanded = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+            expanded = prefs.getStringSet(EXPANDED, null);
+        }
         if (expanded != null) {
             for (String s : expanded) {
-                mListView.expandGroup(Integer.parseInt(s));
+                int groupNo = Integer.parseInt(s);
+                if ((groupNo >= 0) && (groupNo < mListView.getCount())) {
+                    mListView.expandGroup(groupNo);
+                }
             }
         }
     }
 
-    private String getSaveKey(){
-        return ROUTES + mKind.toString();
+    private String getSaveKey() {
+        if (mKind == null) {
+            return ROUTES + TransportKind.BUS.toString();
+        } else {
+            return ROUTES + mKind.toString();
+        }
     }
 
     private void scrollToPos(int pos) {
@@ -118,6 +133,8 @@ public class RoutesFragment extends Fragment {
                 mKind = TransportKind.BUS;
             } else if (i == TransportKind.TROLLEYBUS.ordinal()) {
                 mKind = TransportKind.TROLLEYBUS;
+            } else {
+                mKind = TransportKind.BUS;
             }
         }
         initList(view);

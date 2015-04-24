@@ -11,3 +11,8 @@ local.properties
 *.swp
 *.bin
 *.bin
+*.apk
+app/manifest-merger-release-report.txt
+build/intermediates/dex-cache/cache.xml
+build/intermediates/model_data.bin
+build/intermediates/model_data.bin

@@ -18,7 +18,7 @@
         </PreferenceScreen>
 
         <CheckBoxPreference
-            android:key="autoupdate"
+            android:key="@string/autoupdate"
             android:summary="Автообновление"
             android:defaultValue="true"
             android:title="Обновление"/>
@@ -29,6 +29,15 @@
             android:key="@string/updateKey"
             >
         </PreferenceScreen>
+
+        <ListPreference
+            android:key="@string/firstItemKey"
+            android:title="Первая вкладка"
+            android:summary="Вкладка, которую вы будете видеть первой"
+            android:entries="@array/listentries"
+            android:entryValues="@array/listvalues" />
+
+
 
     </PreferenceCategory>
 </PreferenceScreen>

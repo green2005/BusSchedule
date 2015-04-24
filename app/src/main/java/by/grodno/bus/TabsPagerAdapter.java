@@ -11,15 +11,16 @@ import by.grodno.bus.fragments.RoutesFragment;
 import by.grodno.bus.fragments.StopsFragment;
 
 public class TabsPagerAdapter extends FragmentPagerAdapter {
+    private TabItem mItems[];
 
-    public TabsPagerAdapter(FragmentManager fm) {
+    public TabsPagerAdapter(FragmentManager fm, TabItem[] items) {
         super(fm);
+        mItems = items;
     }
 
     @Override
     public Fragment getItem(int position) {
-        TabItem[] items = TabItem.values();
-        TabItem item = items[position];
+        TabItem item = mItems[position];
         switch (item){
             case BUSES:{
                 Bundle b = new Bundle();
@@ -43,6 +44,6 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return TabItem.values().length;
+        return mItems.length;
     }
 }

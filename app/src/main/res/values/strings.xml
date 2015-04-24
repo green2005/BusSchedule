@@ -3,11 +3,19 @@
     <string name="app_name">Grodno Bus</string>
     <string name="search_hint">Поиск</string>
     <string name="action_search">Поиск</string>
+    <string name="action_del">Удалить</string>
+
+    <string name="action_pref">Избранное</string>
+    <string name="action_addpref">Добавить в избранное</string>
+    <string name="action_delpref">Удалить из избранного</string>
+
     <string name="scheduleDate">09.11.2012</string>
     <string name="buses">Автобусы</string>
     <string name="troll">Троллейбусы</string>
     <string name="stops">Остановки</string>
+    <string name="allbuses">Все маршруты на остановке</string>
     <string name="favorities">Избранное</string>
+    <string name="favoritiesAreEmpty">Список избранного пуст</string>
     <string name="action_settings">Настройки</string>
     <string name="check_inet_connection">Проверьте подключение к Интернет</string>
     <string name="update_error">"Ошибка обновления"</string>
@@ -31,6 +39,13 @@
     <string name="scheduleUpdated">Расписание обновлено</string>
     <string name="errormarket">Could not launch the market</string>
     <string name="updateKey">updateIt</string>
+    <string name="firstItemKey">firstItem</string>
+
     <string name="rateKey">rateIt</string>
     <string name="feedBackMail">mailto:greennn_2005@gmail.com</string>
+    <string name="autoupdate">autoupdate</string>
+    <string name ="delfav">Удалить</string>
+    <string name= "nextBus">Следующий рейс :</string>
+    <string name= "inatime">Через </string>
+
 </resources>

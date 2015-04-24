@@ -4,8 +4,10 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class CalendarHelper {
     private static int getDayNumber() {
@@ -14,13 +16,19 @@ public class CalendarHelper {
         return c.get(Calendar.DAY_OF_WEEK);
     }
 
-    public static String getHour(){
+    public static String getHour() {
         SimpleDateFormat sdfTime = new SimpleDateFormat("HH");
         Date now = new Date();
         return sdfTime.format(now).replace("00.", "24.");
     }
 
-    public static String getDate(){
+    public static String now(){
+        SimpleDateFormat sdfTime = new SimpleDateFormat("HH.mm");
+        Date now = new Date();
+        return sdfTime.format(now).replace("00.", "24.");
+    }
+
+    public static String getDate() {
         SimpleDateFormat sdfTime = new SimpleDateFormat("dd.MM.yyyy");
         Date now = new Date();
         return sdfTime.format(now);
@@ -42,17 +50,43 @@ public class CalendarHelper {
                 return context.getResources().getString(R.string.fri);
             case 6:
                 return context.getResources().getString(R.string.sat);
-            case 7:
+            case 0:
                 return context.getResources().getString(R.string.sun);
         }
         return null;
     }
 
+    public static List<String> getDaySynonims(String day, Context context) {
+        List<String> sn = new ArrayList<>();
+        sn.add(day);
+        String sun = context.getResources().getString(R.string.sun);
+        String sat = context.getResources().getString(R.string.sat);
+        String dayOff = context.getResources().getString(R.string.dayoff);
+        String workDay = context.getResources().getString(R.string.workday);
+        if (day.equals(sun)||day.equals(sat)) {
+            sn.add(dayOff);
+        } else if (day.equals(dayOff)) {
+            sn.add(sun);
+            sn.add(sat);
+        } else if (day.equals(workDay)) {
+            sn.add(context.getResources().getString(R.string.mon));
+            sn.add(context.getResources().getString(R.string.tue));
+            sn.add(context.getResources().getString(R.string.wed));
+            sn.add(context.getResources().getString(R.string.tue));
+            sn.add(context.getResources().getString(R.string.fri));
+        } else
+        {
+            sn.add(workDay);
+        }
+        return sn;
+    }
+
     public static String getDay2(Context context) {
-        if (getDayNumber() - 1 < 6) {
-            return context.getResources().getString(R.string.workday);
-        } else {
+        int i = getDayNumber() - 1;
+        if (i == 0 || i == 6) {
             return context.getResources().getString(R.string.dayoff);
+        } else {
+            return context.getResources().getString(R.string.workday);
         }
     }
 

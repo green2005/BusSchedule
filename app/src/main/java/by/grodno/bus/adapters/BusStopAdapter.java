@@ -19,13 +19,14 @@ public class BusStopAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     private Map<String, List<String>> mTimesMap;
     private List<String> mHours;
-    private String mCurrentHour = CalendarHelper.getHour();
+    private String mNearestHour;
 
-    public BusStopAdapter(Context context, Map<String, List<String>> timesMap, List<String> hours) {
+    public BusStopAdapter(Context context, Map<String, List<String>> timesMap, List<String> hours, String  nearestHour) {
         mContext = context;
         mInflater = LayoutInflater.from(context);
         mTimesMap = timesMap;
         mHours = hours;
+        mNearestHour = nearestHour;
     }
 
     @Override
@@ -65,14 +66,14 @@ public class BusStopAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) cnView.getTag();
         }
+        View hourView = cnView.findViewById(R.id.hourview);
         String hour = mHours.get(position);
-        if (mCurrentHour.equals(hour)){
-            int currentColor = mContext.getResources().getColor(android.R.color.holo_blue_light);
-            cnView.setBackgroundColor(currentColor);
+        if (hour.equals(mNearestHour)){
+            int currentColor = mContext.getResources().getColor(R.color.primary);
+            hourView.setBackgroundColor(currentColor);
         } else
-        {
-            int color = mContext.getResources().getColor(android.R.color.transparent);
-            cnView.setBackgroundColor(color);
+        {   int color = mContext.getResources().getColor(R.color.primary_lightTeal);
+            hourView.setBackgroundColor(color);
         }
         holder.tvHour.setText(hour);
         List<String> minutes = mTimesMap.get(hour);

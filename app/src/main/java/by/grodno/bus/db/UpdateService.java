@@ -41,7 +41,7 @@ public class UpdateService extends Service {
                 }
                 stopSelf();
             }
-        }, true, this);
+        }, true, this, true);
         return Service.START_NOT_STICKY;
     }
 

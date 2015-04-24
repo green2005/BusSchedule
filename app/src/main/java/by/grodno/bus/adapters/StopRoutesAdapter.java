@@ -27,6 +27,14 @@ public class StopRoutesAdapter extends BaseAdapter implements AdapterView.OnItem
         mCursor = c;
     }
 
+    public void swapCursor(Cursor cursor){
+        if (cursor != null){
+            Cursor prevCursor = mCursor;
+            mCursor = cursor;
+            prevCursor.close();
+        }
+    }
+
     @Override
     public int getCount() {
         return mCursor.getCount();

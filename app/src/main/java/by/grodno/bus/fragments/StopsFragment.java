@@ -29,7 +29,6 @@ public class StopsFragment extends Fragment {
     private static final String POSITION = "position";
 
 
-
     public static Fragment newInstance(Bundle params) {
         Fragment fragment = new StopsFragment();
         fragment.setArguments(params);
