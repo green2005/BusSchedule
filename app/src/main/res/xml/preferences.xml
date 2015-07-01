@@ -17,6 +17,7 @@
                 android:data="@string/feedBackMail" />
         </PreferenceScreen>
 
+
         <CheckBoxPreference
             android:key="@string/autoupdate"
             android:summary="Автообновление"

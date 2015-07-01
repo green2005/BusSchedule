@@ -90,17 +90,20 @@ public class RoutesFragment extends Fragment {
         if (activity == null || mListView == null) {
             return;
         }
+        if (mGroupCursor == null || mGroupCursor.isClosed()) {
+            return;
+        }
         SharedPreferences prefs = activity.getSharedPreferences(getSaveKey(), Activity.MODE_PRIVATE);
         int pos = prefs.getInt(POSITION, 0);
         scrollToPos(pos);
         Set<String> expanded = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             expanded = prefs.getStringSet(EXPANDED, null);
         }
         if (expanded != null) {
             for (String s : expanded) {
                 int groupNo = Integer.parseInt(s);
-                if ((groupNo >= 0) && (groupNo < mListView.getCount())) {
+                if ((groupNo >= 0) && (groupNo < mGroupCursor.getCount())) {
                     mListView.expandGroup(groupNo);
                 }
             }
