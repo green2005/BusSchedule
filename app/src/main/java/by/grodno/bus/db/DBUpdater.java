@@ -8,212 +8,158 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.text.TextUtils;
 
-import com.sun.mail.pop3.POP3SSLStore;
-
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.Properties;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.mail.BodyPart;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.Multipart;
-import javax.mail.Session;
 import javax.mail.Store;
-import javax.mail.URLName;
 
 import by.grodno.bus.CalendarHelper;
 import by.grodno.bus.R;
 
 
 public class DBUpdater {
-    private static final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
-    private static final String MESSAGE_PREFIX = "grodno";
-    Store mStore;
     ProgressDialog mProgressDialog;
+    private String mUpdatedDate;
+    private boolean mErrors = false;
 
     private static final String UPDATE_DATE = "update_date";
     private static final String CHECK_DATE = "check_date";
+
+    private static final String SCHEDULE_UPDATE_URL = "https://www.dropbox.com/s/sfuczz8tfvf836k/schedule.txt?dl=1";
 
     public DBUpdater() {
 
     }
 
-    private Folder getYandexInboxFolder() throws Exception {
-        String host = "pop.yandex.ru";
-        String user = "green2005update";
-        String password = "androidupdate1";
 
-        Properties pop3Props = new Properties();
-
-        pop3Props.setProperty("mail.pop3.socketFactory.class", SSL_FACTORY);
-        pop3Props.setProperty("mail.pop3.socketFactory.fallback", "false");
-        pop3Props.setProperty("mail.pop3.port", "995");
-        pop3Props.setProperty("mail.pop3.socketFactory.port", "995");
-        pop3Props.put("mail.smtp.starttls.enable", "true");
-
-        // connect to my pop3 inbox
-
-				 /*
-                 pop3Props = System.getProperties();
-				session = Session.getDefaultInstance(pop3Props);
-				store = session.getStore("pop3");
-				*/
-        URLName url = new URLName("pop3", host, 995, "",
-                user, password);
-
-        Session session = Session.getInstance(pop3Props, null);
-        Store store = new POP3SSLStore(session, url);
-
-        store.connect(host, user, password);
-
-
-        Folder inbox = store.getFolder("Inbox");
-        inbox.open(Folder.READ_ONLY);
-        return inbox;
-
-    }
-
-
-    private Message getLastMessage(Folder folder, String lastUpdated, UpdateListener listener) {
-        try {
-            javax.mail.Message[] messages = folder.getMessages();//
-            if (messages.length > 0) {
-                for (javax.mail.Message message : messages) {
-                    String s = message.getSubject();
-                    if (!s.startsWith(MESSAGE_PREFIX)) {
-                        continue;
-                    }
-                    s = s.replace(MESSAGE_PREFIX, "");
-                    if (!TextUtils.isEmpty(s) && s.equals(lastUpdated)) {
-                        continue;
-                    }
-                    String ds = s.substring(0, 2);
-                    if ((ds.compareTo("31") == 1)
-                            || (ds.compareTo("00") == -1))
-                        continue;
-                    String ms = s.substring(3, 5);
-                    if ((ms.compareTo("12") == 1)
-                            || (ms.compareTo("00") == -1))
-                        continue;
-                    String ys = s.substring(6, 10);
-                    if ((ys.compareTo("2100") == 1)
-                            || (ys.compareTo("2000") == -1))
-                        continue;
-
-                    String lastUpdatedDay = "";
-                    String lastUpdatedMonth = "";
-                    String lastUpdatedYear = "";
-                    if (!TextUtils.isEmpty(lastUpdated)) {
-                        lastUpdatedDay = lastUpdated.substring(0, 2);
-                        lastUpdatedMonth = lastUpdated.substring(3, 5);
-                        lastUpdatedYear = lastUpdated.substring(6, 10);
-                    }
-
-                    int i = (ys.compareTo(lastUpdatedYear));
-                    if (i == 0) {
-                        i = (ms.compareTo(lastUpdatedMonth));
-                        if (i == 0)
-                            i = (ds.compareTo(lastUpdatedDay));
-                    }
-
-                    if (i <= 0) {
-                        continue;
-                    }
-                    return message;
-                }
-            }
-        } catch (Exception e) {
-            listener.onError(e.getMessage());
+    private String getUpdateUrl(String lastUpdated, UpdateListener listener, Handler handler) throws Exception {
+        URL u = new URL(SCHEDULE_UPDATE_URL);
+        HttpURLConnection ucon = (HttpURLConnection) u.openConnection();
+        if (ucon.getResponseCode() != 200) {
+            throw new Exception("server response: " + ucon.getResponseMessage());
         }
-        return null;
+        InputStream is = ucon.getInputStream();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        String date = reader.readLine();
+        String url = reader.readLine();
+        reader.close();
+        if (TextUtils.isEmpty(date)) {
+            return "";
+        }
+        if (TextUtils.isEmpty(url)) {
+            return "";
+        }
+
+        if (date.equals(lastUpdated)) {
+            return "";
+        }
+        String ds = date.substring(0, 2);
+        String ms = date.substring(3, 5);
+        String ys = date.substring(6, 10);
+        String lastUpdatedDay = "";
+        String lastUpdatedMonth = "";
+        String lastUpdatedYear = "";
+        if (!TextUtils.isEmpty(lastUpdated)) {
+            lastUpdatedDay = lastUpdated.substring(0, 2);
+            lastUpdatedMonth = lastUpdated.substring(3, 5);
+            lastUpdatedYear = lastUpdated.substring(6, 10);
+        }
+
+        int i = (ys.compareTo(lastUpdatedYear));
+        if (i == 0) {
+            i = (ms.compareTo(lastUpdatedMonth));
+            if (i == 0)
+                i = (ds.compareTo(lastUpdatedDay));
+        }
+
+        if (i <= 0) {
+            return "";
+        }
+        mUpdatedDate = date;
+        return url;
     }
 
     private void updateSchedule(final UpdateListener listener, String lastUpdated, Handler handler, final Context context) {
+        mUpdatedDate = "";
         try {
-            Folder folder;
-            try {
-                folder = getYandexInboxFolder();
-            } catch (final Exception e) {
-                postError(listener, handler, e.getMessage());
+            String updateUrl = getUpdateUrl(
+                    lastUpdated,
+                    listener,
+                    handler);
+
+
+            if (TextUtils.isEmpty(updateUrl)) {
+                postSuccess(listener, handler, null, context);
+                return;
+            }
+            String newFileName = DBManager.getDBfileName(context) + ".tmp";
+            File file = new File(newFileName);
+            if (!file.mkdirs()) {
                 return;
             }
 
-            if (folder == null) {
-                postError(listener, handler, R.string.check_inet_connection);
-                return;
+            String path = file.getParent();
+            String fileName = file.getName();
+            file = new File(path, fileName);
+            file.delete();
+
+            file.createNewFile();
+            file.setWritable(true);
+
+            OutputStream stream = new FileOutputStream(file, false);
+            URL u = new URL(updateUrl);
+            HttpURLConnection ucon = (HttpURLConnection) u.openConnection();
+            InputStream inputStream = ucon.getInputStream();
+
+            ZipInputStream is = new ZipInputStream(inputStream);
+            ZipEntry ze = is.getNextEntry();
+            int length = 0;
+            byte[] buffer = new byte[2048];
+            while ((length = is.read(buffer)) > 0) {
+                stream.write(buffer, 0, length);
             }
-            try {
-                Message msg = getLastMessage(folder,
-                        lastUpdated,
-                        listener);
-                if (msg == null) {
-                    postSuccess(listener, handler, null, context);
-                    return;
-                }
-                String newFileName = DBManager.getDBfileName(context) + ".tmp";
-                File file = new File(newFileName);
-                if (!file.mkdirs()) {
-                    return;
-                }
+            is.closeEntry();
 
-                String path = file.getParent();
-                String fileName = file.getName();
-                file = new File(path, fileName);
-                file.delete();
+            stream.flush();
+            stream.close();
 
-                file.createNewFile();
-                file.setWritable(true);
-
-                OutputStream stream = new FileOutputStream(file, false);
-                Multipart multipart = (Multipart) msg.getContent();
-
-                for (int j = 0; j < multipart.getCount(); j++) {
-                    BodyPart bp = multipart.getBodyPart(j);
-                    ZipInputStream is = new ZipInputStream(bp.getInputStream());
-                    ZipEntry ze = is.getNextEntry();
-                    int length = 0;
-                    //multipart.getBodyPart(1).getSize()
-                    android.os.Message msg2 = new android.os.Message();
-                    byte[] buffer = new byte[2048];
-                    while ((length = is.read(buffer)) > 0) {
-                        stream.write(buffer, 0, length);
-                    }
-                    is.closeEntry();
-                }
-                stream.flush();
-                stream.close();
-                if (checkIsDbCorrect(newFileName)) {
-                    File tmpfile = new File(newFileName);
-                    String dbFileName = DBManager.getDBfileName(context);
-                    File dbFile = new File(dbFileName);
-                    if (tmpfile.renameTo(dbFile)) {
-                        final String updatedDate = msg.getSubject().replace(MESSAGE_PREFIX, "");
-                        postSuccess(listener, handler, updatedDate, context);
-                    } else {
-                        postError(listener, handler, R.string.update_error);
-                    }
+            if (checkIsDbCorrect(newFileName)) {
+                File tmpfile = new File(newFileName);
+                String dbFileName = DBManager.getDBfileName(context);
+                File dbFile = new File(dbFileName);
+                if (tmpfile.renameTo(dbFile)) {
+                    final String updatedDate = mUpdatedDate;//msg.getSubject().replace(MESSAGE_PREFIX, "");
+                    postSuccess(listener, handler, updatedDate, context);
                 } else {
-                    try {
-                        File tmpfile = new File(newFileName);
-                        if (!tmpfile.delete()) {
-                            tmpfile.deleteOnExit();
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
                     postError(listener, handler, R.string.update_error);
                 }
-            } finally {
-                folder.close(false);
-                if (mStore != null)
-                    mStore.close();
+            } else {
+                try {
+                    File tmpfile = new File(newFileName);
+                    if (!tmpfile.delete()) {
+                        tmpfile.deleteOnExit();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                postError(listener, handler, R.string.update_error);
             }
+
         } catch (Exception e) {
-            postError(listener, handler, e.getMessage());
+            if (e.getMessage().contains("Unable to resolve host")) {
+                postError(listener, handler, R.string.check_inet_connection);
+            } else {
+                postError(listener, handler, e.getMessage());
+            }
         }
     }
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<preference-headers
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+ 
+<header android:fragment="by.grodno.bus.activity.PrefActivity$PreferenceFragment"
+    android:icon="@android:drawable/ic_menu_sort_by_size"
+    android:title="Category 1 prefs" >
+    <extra android:name="pref-resource" android:value="app_prefs_cat1" />
+</header>         
+</preference-headers>

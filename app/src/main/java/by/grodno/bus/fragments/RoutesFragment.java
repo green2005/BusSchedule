@@ -7,9 +7,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 
 import java.util.HashSet;
@@ -50,6 +53,8 @@ public class RoutesFragment extends Fragment {
         if (mGroupCursor != null) {
             mGroupCursor.close();
         }
+
+
     }
 
     @Override
@@ -145,11 +150,40 @@ public class RoutesFragment extends Fragment {
     }
 
     private void initList(View fragmentView) {
-        final Activity activity = getActivity();
+        final ActionBarActivity activity = (ActionBarActivity)getActivity();
         if (activity == null) {
             return;
         }
+
+        final ActionBar mBar  = activity.getSupportActionBar();
+
+
         mListView = (ExpandableListView) fragmentView.findViewById(R.id.routesList);
+        mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            int mLastFirstVisibleItem = 0;
+
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+              }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (view.getId() == mListView.getId()) {
+                    final int currentFirstVisibleItem = mListView.getFirstVisiblePosition();
+
+                    if (currentFirstVisibleItem > mLastFirstVisibleItem) {
+                        // getSherlockActivity().getSupportActionBar().hide();
+                        mBar.hide();
+                    } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
+                        // getSherlockActivity().getSupportActionBar().show();
+                        mBar.show();
+                    }
+
+                    mLastFirstVisibleItem = currentFirstVisibleItem;
+                }
+            }
+        });
 
         final DBManager dbManager = ((BusApplication) activity.getApplication()).getDBManager();
         new QueryHelper(dbManager).rawQuery(DBManager.getRoutesSQL(mKind), new QueryHelper.QueryListener() {

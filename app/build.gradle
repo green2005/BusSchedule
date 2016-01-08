@@ -8,8 +8,8 @@ android {
         applicationId "by.grodno.bus"
         minSdkVersion 10
         targetSdkVersion 14
-        versionCode 17
-        versionName "1.24"
+        versionCode 19
+        versionName "1.26"
     }
     buildTypes {
         release {

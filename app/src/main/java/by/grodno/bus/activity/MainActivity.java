@@ -18,6 +18,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Toast;
 
 import by.grodno.bus.BusApplication;
@@ -35,15 +36,18 @@ public class MainActivity extends ActionBarActivity implements android.support.v
     private ViewPager mViewPager;
     private Cursor mSearchCursor;
     private DBManager mDBManager;
+    private ActionBar mActionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
         mDBManager = ((BusApplication) getApplication()).getDBManager();
         if (mDBManager.dbExists()) {
-            mDBManager.openDB();
+            mDBManager.openDB();    
             initTabs();
             updateDB(true);
         } else {
@@ -52,7 +56,7 @@ public class MainActivity extends ActionBarActivity implements android.support.v
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            Toast.makeText(this, query, Toast.LENGTH_LONG).show();//doMySearch(query);
+            Toast.makeText(this, query, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -107,9 +111,12 @@ public class MainActivity extends ActionBarActivity implements android.support.v
 
 
     private void initTabs() {
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        android.support.v7.app.ActionBar.Tab tab;
+        mActionBar = getSupportActionBar();
+        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+
+
+        ActionBar.Tab tab;
         String firstItem = getFirstItem();
         TabItem items[];
         items = TabItem.values();
@@ -142,11 +149,10 @@ public class MainActivity extends ActionBarActivity implements android.support.v
             }
         }
         for (TabItem item : items) {
-            tab = actionBar.newTab();
-            //tab.setText(item.getText());
+            tab = mActionBar.newTab();
             tab.setIcon(item.getIcon());
             tab.setTabListener(this);
-            actionBar.addTab(tab);
+            mActionBar.addTab(tab);
         }
         TabsPagerAdapter mAdapter = new TabsPagerAdapter(getSupportFragmentManager(), items);
         mViewPager.setAdapter(mAdapter);
@@ -158,7 +164,7 @@ public class MainActivity extends ActionBarActivity implements android.support.v
 
             @Override
             public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
+                mActionBar.setSelectedNavigationItem(position);
             }
 
             @Override

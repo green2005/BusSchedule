@@ -38,7 +38,5 @@
             android:entries="@array/listentries"
             android:entryValues="@array/listvalues" />
 
-
-
     </PreferenceCategory>
 </PreferenceScreen>
