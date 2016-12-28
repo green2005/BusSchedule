@@ -3,6 +3,7 @@ package by.grodno.bus.db;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
+
 import java.util.List;
 
 import by.grodno.bus.fragments.RoutesFragment;
@@ -23,14 +24,12 @@ public class DBManager {
     public static final String MINUTE = "minute";
     public static final String TRANSPORT_KIND = "tr";
 
-    private Context mContext;
     //private SQLiteDatabase mdb;
     private FavouritiesDBHelper mFavouritiesDBHelper;
     private ScheduleDBHelper mScheduleDBHelper;
 
 
     public DBManager(Context context) {
-        mContext = context;
         mFavouritiesDBHelper = new FavouritiesDBHelper(context);
         mScheduleDBHelper = new ScheduleDBHelper(context, null);
     }
@@ -40,33 +39,22 @@ public class DBManager {
         updater.updateDB(listener, silent, context, mScheduleDBHelper.dbExists());// dbExists());
     }
 
-    public static String getDBfileName(Context context) {
+    protected static String getDBfileName(Context context) {
         return context.getDatabasePath(DBManager.DBNAME).getAbsolutePath();
     }
 
 
     public boolean dbExists() {
         return mScheduleDBHelper.dbExists();
-//        if (mdb == null) {
-//            openDB();
-//        }
-//        return mdb != null && mdb.isOpen();
     }
 
     public void openDB() {
         mScheduleDBHelper.openDB();
-//        File file = new File(getDBfileName(mContext));
-//        if (!file.exists()) {
-//            return;
-//        }
-//        mdb = SQLiteDatabase.openDatabase(getDBfileName(mContext), null,
-//                SQLiteDatabase.NO_LOCALIZED_COLLATORS
-//                        | SQLiteDatabase.CREATE_IF_NECESSARY);
     }
 
     public void close() {
-        if (mScheduleDBHelper != null){ // (mdb != null && mdb.isOpen()) {
-             mScheduleDBHelper.close();//mdb.close();
+        if (mScheduleDBHelper != null) { // (mdb != null && mdb.isOpen()) {
+            mScheduleDBHelper.close();//mdb.close();
         }
         mFavouritiesDBHelper.close();
     }
@@ -182,7 +170,7 @@ public class DBManager {
     }
 
     public static String getRoute(String busId) {
-        return "select buses.name, buses.direction" +
+        return "select buses.name, buses.direction, buses.tr " +
                 " from buses where buses.id = " + busId;
     }
 
@@ -204,12 +192,12 @@ public class DBManager {
         switch (kind) {
             case BUS: {
                 sql = "select count(*)  from buses where " + BUS_NAME + "=\"" + busName
-                        + "\" and tr = 0";
+                        + "\" and tr = 0 and direction!=" + "\"" + "МАРШРУТ" + "\"";
                 break;
             }
             case TROLLEYBUS: {
                 sql = "select count(*)  from buses where " + BUS_NAME + "=\"" + busName
-                        + "\" and tr = 1";
+                        + "\" and tr = 1 and direction!=" + "\"" + "МАРШРУТ" + "\"";
                 break;
             }
         }
@@ -224,11 +212,11 @@ public class DBManager {
         switch (kind) {
             case TROLLEYBUS: {
                 return "select direction, id as [" + BUS_ID + "] from buses where name=" + "\""
-                        + routeName + "\" and tr = 1";
+                        + routeName + "\" and tr = 1 and direction!=" + "\"" + "МАРШРУТ" + "\"";
             }
             case BUS: {
                 return "select direction, id as [" + BUS_ID + "] from buses where name=" + "\""
-                        + routeName + "\" and tr = 0";
+                        + routeName + "\" and tr = 0 and direction!=" + "\"" + "МАРШРУТ" + "\"";
             }
         }
         return null;

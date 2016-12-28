@@ -26,7 +26,8 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
     @Override
     public void onOpen(SQLiteDatabase database) {
         if (!database.isOpen()) {
-            mDb = SQLiteDatabase.openDatabase(database.getPath(), null, SQLiteDatabase.NO_LOCALIZED_COLLATORS |
+            mDb = SQLiteDatabase.openDatabase(database.getPath(), null,
+                    SQLiteDatabase.NO_LOCALIZED_COLLATORS |
                     SQLiteDatabase.CREATE_IF_NECESSARY);
         }
     }

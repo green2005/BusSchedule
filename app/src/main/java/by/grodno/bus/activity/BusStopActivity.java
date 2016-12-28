@@ -7,8 +7,13 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import by.grodno.bus.R;
+import by.grodno.bus.TrackingParams;
 import by.grodno.bus.db.DBManager;
 import by.grodno.bus.db.FavouritiesItem;
 import by.grodno.bus.db.QueryHelper;
@@ -69,24 +74,47 @@ public class BusStopActivity extends DetailActivity {
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_map){
+            if (Integer.parseInt(mTr) == 1) {
+                Toast.makeText(BusStopActivity.this, getString(R.string.tr_are_not_tracking), Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+            Intent intent = new Intent(BusStopActivity.this, GoogleMapsActivity.class);
+            Bundle bundle = new Bundle();
+            List<String> busNames = new ArrayList<>();
+            List<String> busTypes = new ArrayList<>();
+            busNames.add(mBusName);
+            busTypes.add(TrackingParams.BUS_TYPE_KEY);
+
+            TrackingParams params = new TrackingParams(busNames, busTypes, "", "");
+            bundle.putParcelable(TrackingParams.KEY, params);
+            intent.putExtras(bundle);
+            startActivity(intent);
+            return false;
+        }   else
+        if (item.getItemId() == R.id.action_allbuses_item){
+            Intent intent = new Intent(BusStopActivity.this, StopRoutesActivity.class);
+            intent.putExtra(DBManager.STOP_NAME, mStopName);
+            intent.putExtra(DBManager.STOP_ID, mStopId);
+            startActivity(intent);
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.bus_stop_menu, menu);
         final MenuItem addToFav = menu.findItem(R.id.action_addtopref_item);
         final MenuItem delFromFav = menu.findItem(R.id.action_delfrompref_item);
         initFavouritiesItems(delFromFav, addToFav);
 
+
         MenuItem allBuses = menu.findItem(R.id.action_allbuses_item);
         allBuses.setIcon(R.drawable.bus);
-        allBuses.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Intent intent = new Intent(BusStopActivity.this, StopRoutesActivity.class);
-                intent.putExtra(DBManager.STOP_NAME, mStopName);
-                intent.putExtra(DBManager.STOP_ID, mStopId);
-                startActivity(intent);
-                return true;
-            }
-        });
+
         return true;
     }
 }

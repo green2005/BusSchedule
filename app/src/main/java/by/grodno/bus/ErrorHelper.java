@@ -3,6 +3,7 @@ package by.grodno.bus;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Handler;
 import android.view.View;
 
 public class ErrorHelper {
@@ -23,5 +24,14 @@ public class ErrorHelper {
 
     public static void showErrorDialog(int errorResId, Context context, final View.OnClickListener listener) {
         showErrorDialog(context.getString(errorResId), context, listener);
+    }
+
+    public static void processError(final Context context, final Exception e, Handler h) {
+        h.post(new Runnable() {
+            @Override
+            public void run() {
+                ErrorHelper.showErrorDialog(e.getMessage(), context, null);
+            }
+        });
     }
 }

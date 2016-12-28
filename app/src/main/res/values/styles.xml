@@ -2,7 +2,6 @@
     <!-- style the list navigation -->
 
 
-
     <style name="CustomSearchView" parent="Base.TextAppearance.AppCompat">
         <item name="android:color">@android:color/white</item>
         <item name="android:textColor">@android:color/black</item>
@@ -36,6 +35,14 @@
 
         <item name="android:divider">@color/dividerTeal</item>
     </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <!--<item name="windowNoTitle">true</item> -->
+    </style>
+
+    <style name="AppThemeTeal.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppThemeTeal.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 
     <!--

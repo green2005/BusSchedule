@@ -150,38 +150,25 @@ public class RoutesFragment extends Fragment {
     }
 
     private void initList(View fragmentView) {
-        final ActionBarActivity activity = (ActionBarActivity)getActivity();
+        final ActionBarActivity activity = (ActionBarActivity) getActivity();
         if (activity == null) {
             return;
         }
 
-        final ActionBar mBar  = activity.getSupportActionBar();
+        final ActionBar mBar = activity.getSupportActionBar();
 
 
         mListView = (ExpandableListView) fragmentView.findViewById(R.id.routesList);
         mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            int mLastFirstVisibleItem = 0;
 
 
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-              }
+            }
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (view.getId() == mListView.getId()) {
-                    final int currentFirstVisibleItem = mListView.getFirstVisiblePosition();
 
-                    if (currentFirstVisibleItem > mLastFirstVisibleItem) {
-                        // getSherlockActivity().getSupportActionBar().hide();
-                        mBar.hide();
-                    } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
-                        // getSherlockActivity().getSupportActionBar().show();
-                        mBar.show();
-                    }
-
-                    mLastFirstVisibleItem = currentFirstVisibleItem;
-                }
             }
         });
 

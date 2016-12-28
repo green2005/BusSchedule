@@ -1,9 +1,10 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-<!--
-xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".BusStopActivity"
-    -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!--
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context=".BusStopActivity"
+        -->
 
     <item
         android:id="@+id/action_addtopref_item"
@@ -13,12 +14,21 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
 
     <item
         android:id="@+id/action_delfrompref_item"
-        android:title="@string/action_delpref"
         android:icon="@android:drawable/star_big_on"
+        android:title="@string/action_delpref"
         android:visible="false" />
     <item
         android:id="@+id/action_allbuses_item"
-        android:title="@string/allbuses"
         android:icon="@drawable/bus"
+        android:title="@string/allbuses"
         android:visible="true" />
+
+    <item
+        android:id="@+id/action_map"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_dialog_map"
+        android:title="@string/map"
+        android:visible="true"
+        app:showAsAction="always|collapseActionView" />
+
 </menu>

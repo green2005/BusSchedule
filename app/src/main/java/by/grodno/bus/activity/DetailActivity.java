@@ -178,4 +178,5 @@ public abstract class DetailActivity extends ActionBarActivity {
 
 
 
+
 }

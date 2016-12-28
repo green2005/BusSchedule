@@ -47,7 +47,7 @@ public class MainActivity extends ActionBarActivity implements android.support.v
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
         mDBManager = ((BusApplication) getApplication()).getDBManager();
         if (mDBManager.dbExists()) {
-            mDBManager.openDB();    
+            mDBManager.openDB();
             initTabs();
             updateDB(true);
         } else {

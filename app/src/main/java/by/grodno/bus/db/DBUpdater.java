@@ -19,8 +19,6 @@ import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.mail.Store;
-
 import by.grodno.bus.CalendarHelper;
 import by.grodno.bus.R;
 

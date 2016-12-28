@@ -14,9 +14,13 @@
     <string name="troll">Троллейбусы</string>
     <string name="stops">Остановки</string>
     <string name="allbuses">Все маршруты на остановке</string>
+
+    <string name="map">Карта</string>
+
     <string name="favorities">Избранное</string>
     <string name="favoritiesAreEmpty">Список избранного пуст</string>
     <string name="action_settings">Настройки</string>
+    <string name="action_choose">Выбрать</string>
     <string name="check_inet_connection">Проверьте подключение к Интернет</string>
     <string name="update_error">"Ошибка обновления"</string>
     <string name="ok">OK</string>
@@ -44,8 +48,15 @@
     <string name="rateKey">rateIt</string>
     <string name="feedBackMail">mailto:greennn_2005@gmail.com</string>
     <string name="autoupdate">autoupdate</string>
-    <string name ="delfav">Удалить</string>
-    <string name= "nextBus">Следующий рейс :</string>
-    <string name= "inatime">Через </string>
-
+    <string name="delfav">Удалить</string>
+    <string name="nextBus">Следующий рейс :</string>
+    <string name="inatime">Через </string>
+    <string name="title_activity_maps">Карта</string>
+    <string name="title_activity_google_maps">Карта</string>
+    <string name="choose_buses">Выбрать транспорт</string>
+    <string name="transport">Транспорт</string>
+    <string name="bus_names">Автобусы</string>
+    <string name="minibus_names">Маршрутки</string>
+    <string name="tr_are_not_tracking">Троллейбусы не трэкаются</string>
+    <string name="inet_is_unavailable">Проверьте настройки доступа к сети Интернет</string>
 </resources>
