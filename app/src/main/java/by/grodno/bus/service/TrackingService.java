@@ -5,38 +5,48 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.text.TextUtils;
-
-import by.grodno.bus.API;
-import by.grodno.bus.bo.BusCoord;
-import by.grodno.bus.ErrorHelper;
-import by.grodno.bus.NetManager;
-import by.grodno.bus.TrackingParams;
-import by.grodno.bus.db.CursorHelper;
-import by.grodno.bus.db.DBContract;
-import by.grodno.bus.db.Provider;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import by.grodno.bus.API;
+import by.grodno.bus.ErrorHelper;
+import by.grodno.bus.NetManager;
+import by.grodno.bus.R;
+import by.grodno.bus.TrackingParams;
+import by.grodno.bus.activity.GoogleMapsActivity;
+import by.grodno.bus.bo.BusCoord;
+import by.grodno.bus.bo.ContentValuesItem;
+import by.grodno.bus.bo.RouteStopItem;
+import by.grodno.bus.db.CursorHelper;
+import by.grodno.bus.db.DBContract;
+import by.grodno.bus.db.Provider;
+
 public class TrackingService extends Service {
     private boolean mIsRunning = false;
-    private static final int REFRESH_DELAY = 3000;
+    private static final int REFRESH_DELAY = 3500;
     private String mTrackingUrl;
+    private boolean mTrackStops;
+    private List<Integer> mBusIds;
+    private int mTrackingBusId = 0;
 
 
     public TrackingService() {
+        mBusIds = new ArrayList<>();
     }
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         if (!mIsRunning) {
             mIsRunning = true;
-            new Thread(new Runnable() {
+             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -44,12 +54,16 @@ public class TrackingService extends Service {
                             if (TextUtils.isEmpty(mTrackingUrl)) {
                                 parseExtras(intent.getExtras());
                             }
-
                             doProcess();
+                            if (mTrackStops) {
+                                trackStops();
+                                mTrackStops = false;
+                            }
                             Thread.sleep(REFRESH_DELAY);
                         }
                     } catch (Exception e) {
-                        doProcessError(e);
+                        doProcessError(e );
+                        mIsRunning = false;
                     }
 
                 }
@@ -58,15 +72,54 @@ public class TrackingService extends Service {
         return Service.START_NOT_STICKY;
     }
 
+    private void trackStops() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    getApplicationContext().getContentResolver().delete(Provider.ROUTE_STOPS_GPS_CONTENT_URI, "", null);
+                    for (int vid : mBusIds) {
+                        String url = API.getRouteStopsUrl(vid);
+                        String jsonStr = NetManager.getHTMLFromUrl(url);
+                        JSONArray array = new JSONArray(jsonStr);
+                        ContentValuesItem item = new RouteStopItem();
+                        ContentValues contentValues[] = new ContentValues[array.length()];
+                        for (int i = 0; i < array.length(); i++) {
+                            JSONObject jo = array.optJSONObject(i);
+                            ContentValues cv = new ContentValues();
+                            contentValues[i] = cv;
+                            item.fillContentValues(jo, cv);
+                            cv.put(DBContract.MapRoutesStopsColumns.BUSID, vid);
+                        }
+                        getApplicationContext().getContentResolver().bulkInsert(Provider.ROUTE_STOPS_GPS_CONTENT_URI, contentValues);
+                    }
+                } catch (Exception e) {
+                    doProcessError(e);
+                }
+            }
+        }).start();
+    }
+
+
     private void doProcess() throws Exception {
         if (!TextUtils.isEmpty(mTrackingUrl)) {
             String jsonStr = NetManager.getHTMLFromUrl(mTrackingUrl);
             JSONObject jo = new JSONObject(jsonStr);
             JSONArray array = jo.optJSONArray("anims");
+            if (mTrackStops) {
+                mBusIds.clear();
+                if (mTrackingBusId != 0) {
+                    mBusIds.add(mTrackingBusId);
+                }
+            }
+
             ContentValues cv[] = new ContentValues[array.length()];
             for (int i = 0; i < array.length(); i++) {
                 JSONObject coordJo = array.optJSONObject(i);
                 BusCoord busCoord = new BusCoord(coordJo);
+                if (mTrackStops && mTrackingBusId == 0) {
+                    mBusIds.add(busCoord.getId());
+                }
                 cv[i] = busCoord.getContentValue();
             }
             getApplicationContext().getContentResolver().delete(Provider.BUS_GPS_CONTENT_URI, "", null);
@@ -80,6 +133,9 @@ public class TrackingService extends Service {
             throw new UnsupportedOperationException("Bundle is null");
         } else {
             List<Integer> ids = new ArrayList<>();
+            mTrackStops = params.getNeedTrackStops();
+            mTrackingBusId = params.getTrackingStopsBusId();
+
             for (int i = 0; i < params.getBusNames().size(); i++) {
                 String busName = params.getBusNames().get(i);
                 String busType = params.getBusTypes().get(i);
@@ -95,20 +151,29 @@ public class TrackingService extends Service {
                         new String[]{busName, busType},
                         ""
                 );
-                cr.moveToFirst();
-                while (!cr.isAfterLast()) {
-                    ids.add(CursorHelper.getInt(cr, DBContract.MapRoutesColumns.FID));
-                    cr.moveToNext();
+                if (cr != null) {
+                    cr.moveToFirst();
+                    while (!cr.isAfterLast()) {
+                        ids.add(CursorHelper.getInt(cr, DBContract.MapRoutesColumns.FID));
+                        cr.moveToNext();
+                    }
+                    cr.close();
                 }
-                cr.close();
             }
             mTrackingUrl = API.getRoutesUrl(ids);
         }
     }
 
 
-    private void doProcessError(Exception e) {
-        ErrorHelper.showErrorDialog(e.getMessage(), getBaseContext(), null);
+    private void doProcessError(final Exception e) {
+        Intent intent = new Intent(GoogleMapsActivity.ERROR_ACTION);
+        Bundle b = new Bundle();
+        if (e instanceof UnknownHostException){
+            b.putString(GoogleMapsActivity.ERROR_MSG, this.getString(R.string.check_inet_connection));
+        } else {
+            b.putString(GoogleMapsActivity.ERROR_MSG, e.getMessage());
+        }intent.putExtras(b);
+        sendBroadcast(intent);
     }
 
     @Override

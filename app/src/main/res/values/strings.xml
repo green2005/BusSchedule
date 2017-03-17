@@ -41,6 +41,7 @@
     <string name="updatenotneeded">Обновление не требуется</string>
     <string name="updatesucceded">Обновление завершено</string>
     <string name="scheduleUpdated">Расписание обновлено</string>
+    <string name = "error">Ошибка</string>
     <string name="errormarket">Could not launch the market</string>
     <string name="updateKey">updateIt</string>
     <string name="firstItemKey">firstItem</string>
@@ -58,5 +59,10 @@
     <string name="bus_names">Автобусы</string>
     <string name="minibus_names">Маршрутки</string>
     <string name="tr_are_not_tracking">Троллейбусы не трэкаются</string>
+    <string name="navigate">Проложить маршрут</string>
     <string name="inet_is_unavailable">Проверьте настройки доступа к сети Интернет</string>
+
+    <string name="turn_on_gps">Пожалуйста, включите GPS</string>
+     <string name="cancel">Отмена</string>
+    <string name="GPS">GPS</string>
 </resources>

@@ -4,16 +4,16 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import by.grodno.bus.db.DBContract.MapRoutesStopsColumns;
+
 
 public class DBHelper extends SQLiteOpenHelper {
     private static final String DBNAME = "coords.db";
-    private static final int DB_VERSION = 4;
+    private static final int DB_VERSION = 5;
 
 
     public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
-
-
     }
 
     public DBHelper(Context context) {
@@ -64,6 +64,18 @@ public class DBHelper extends SQLiteOpenHelper {
                 DBContract.MapRouteNodesColumns.LON + " REAL " +
                 " )";
         db.execSQL(sql);
+
+        sql = "create table " + MapRoutesStopsColumns.TABLE_NAME + " ( " +
+                MapRoutesStopsColumns.ID + " integer primary key AUTOINCREMENT, " +
+                MapRoutesStopsColumns.LAT + " REAL, " +
+                MapRoutesStopsColumns.LON + " REAL, " +
+                MapRoutesStopsColumns.ARRT + " integer, " +
+                MapRoutesStopsColumns.BUSID + " integer, " +
+                MapRoutesStopsColumns.DESCR + " text, " +
+                MapRoutesStopsColumns.STOP_NAME + " text, " +
+                MapRoutesStopsColumns.STOPID + " integer " +
+                " )";
+        db.execSQL(sql);
     }
 
     @Override
@@ -72,6 +84,8 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("drop table if exists " + DBContract.MapRoutesColumns.TABLE_NAME);
         db.execSQL("drop table if exists " + DBContract.MapStopCoordsColumns.TABLE_NAME);
         db.execSQL("drop table if exists " + DBContract.MapRouteNodesColumns.TABLE_NAME);
+        db.execSQL("drop table if exists " + MapRoutesStopsColumns.TABLE_NAME);
         onCreate(db);
+
     }
 }

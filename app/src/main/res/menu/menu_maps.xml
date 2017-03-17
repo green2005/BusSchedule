@@ -6,4 +6,10 @@
         android:orderInCategory="100"
         android:title="@string/choose_buses"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/actionNavigate"
+        android:orderInCategory="100"
+        android:title=""
+        />
+
 </menu>

@@ -18,7 +18,10 @@ public class Provider extends ContentProvider {
 
     public static final String STOPS_GPS_PATH = "stops_gps";
     public static final String ROUTES_GPS_PATH = "routes_gps";
+    public static final String ROUTES_STOPS_GPS_PATH = "routes_stops_gps";
+
     public static final String ROUTE_NODES_PATH = "route_nodes";
+
 
     public static final Uri BUS_GPS_CONTENT_URI = Uri.parse("content://"
             + AUTHORITY + "/" + BUS_GPS_PATH);
@@ -38,6 +41,9 @@ public class Provider extends ContentProvider {
     public static final String CONTACT_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd."
             + AUTHORITY + "." + BUS_GPS_PATH;
 
+    public static final Uri ROUTE_STOPS_GPS_CONTENT_URI = Uri.parse("content://"
+            + AUTHORITY + "/" + ROUTES_STOPS_GPS_PATH);
+
 
     public static final int URI_BUS_GPS = 1;
     static final int URI_BUS_GPS_ID = 2;
@@ -48,6 +54,9 @@ public class Provider extends ContentProvider {
 
     public static final int URI_ROUTE_NODES = 7;
     static final int URI_ROUTE_NODES_ID = 8;
+
+    public static final int URI_ROUTE_STOPS_GPS = 9;
+    public static final int URI_ROUTE_STOPS_GPS_ID = 10;
 
     private final static UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -63,6 +72,9 @@ public class Provider extends ContentProvider {
 
         sUriMatcher.addURI(AUTHORITY, ROUTE_NODES_PATH, URI_ROUTE_NODES);
         sUriMatcher.addURI(AUTHORITY, ROUTE_NODES_PATH + "/#", URI_ROUTE_NODES_ID);
+
+        sUriMatcher.addURI(AUTHORITY, ROUTES_STOPS_GPS_PATH, URI_ROUTE_STOPS_GPS);
+        sUriMatcher.addURI(AUTHORITY, ROUTES_STOPS_GPS_PATH + "/#", URI_STOPS_GPS_ID);
     }
 
     private DBHelper mDBHelper;
@@ -199,16 +211,27 @@ public class Provider extends ContentProvider {
                 tableName = DBContract.MapStopCoordsColumns.TABLE_NAME;
                 break;
             }
+
             case URI_ROUTE_NODES: {
                 tableName = DBContract.MapRouteNodesColumns.TABLE_NAME;
                 break;
             }
+
             case URI_ROUTE_NODES_ID: {
                 tableName = DBContract.MapRouteNodesColumns.TABLE_NAME;
+                break;
+            }
+
+            case URI_ROUTE_STOPS_GPS: {
+                tableName = DBContract.MapRoutesStopsColumns.TABLE_NAME;
+                break;
+            }
+
+            case URI_ROUTE_STOPS_GPS_ID: {
+                tableName = DBContract.MapRoutesStopsColumns.TABLE_NAME;
                 break;
             }
         }
         return tableName;
     }
-
 }

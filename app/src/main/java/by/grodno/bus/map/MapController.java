@@ -18,6 +18,7 @@ import by.grodno.bus.NetManager;
 import by.grodno.bus.bo.ContentValuesItem;
 import by.grodno.bus.bo.RouteGPSItem;
 import by.grodno.bus.bo.RouteNodeItem;
+import by.grodno.bus.bo.RouteStopItem;
 import by.grodno.bus.bo.StopGPSItem;
 import by.grodno.bus.db.DBContract;
 import by.grodno.bus.db.Provider;
@@ -27,7 +28,7 @@ public class MapController {
     private AtomicInteger mThreadsDone;
     private OnInitdoneListener mListener;
 
-    protected interface OnInitdoneListener{
+    protected interface OnInitdoneListener {
         void onDone();
     }
 
@@ -48,6 +49,8 @@ public class MapController {
             }
         });
     }
+
+
 
     protected void fillStops() {
         final Handler h = new Handler();

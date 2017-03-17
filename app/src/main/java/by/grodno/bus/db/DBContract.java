@@ -51,5 +51,20 @@ public final class DBContract {
         public static final String TOSTID = "tostid";
         public static final String TABLE_NAME = "routes";
     }
+
+    public static final class MapRoutesStopsColumns implements BaseColumns{
+        public static final String ID = BaseColumns._ID;
+        public static final String BUSID = "id";
+        public static final String ARRT = "arrt";
+        public static final String STOPID = "stid";
+        public static final String STOP_NAME = "stopname";
+        public static final String LAT = "lat";
+        public static final String LON = "lon";
+        public static final String DESCR = "description";
+
+
+        public static final String TABLE_NAME = "route_stops";
+    }
+
 }
 

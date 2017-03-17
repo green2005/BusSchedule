@@ -2,8 +2,10 @@ package by.grodno.bus;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -18,6 +20,8 @@ public class TrackingParams implements Parcelable {
     private ArrayList<String> mBusTypes;
     private String mStopName;
     private String mRouteName;
+    private int mTrackingStopsBusId;
+    private boolean mNeedTrackStops = false;
 
     private TrackingParams() {
         mBusNames = new ArrayList<>();
@@ -40,12 +44,53 @@ public class TrackingParams implements Parcelable {
         mRouteName = routeName;
     }
 
+    public String toString() {
+        String busNames = TextUtils.join(",", mBusNames);
+        String busTypes = TextUtils.join(",", mBusTypes);
+        String stopName = mStopName;
+        String routeName = mRouteName;
+        return busNames + ";" + busTypes + ";" + stopName + ";" + routeName;
+    }
+
+    public static TrackingParams fromString(String params) {
+        if (TextUtils.isEmpty(params)) {
+            return new TrackingParams("", "", "", "");
+        } else {
+            String[] strings = TextUtils.split(params, ";");
+            if (strings.length < 4) {
+                return new TrackingParams("", "", "", "");
+            }
+            String sNames = strings[0];
+            String sTypes = strings[1];
+            String stopName = strings[2];
+            String routeName = strings[3];
+            ArrayList<String> busNames = new ArrayList<>(Arrays.asList(TextUtils.split(sNames, ",")));
+            ArrayList<String> busTypes = new ArrayList<>(Arrays.asList(TextUtils.split(sTypes, ",")));
+            return new TrackingParams(busNames, busTypes, stopName, routeName);
+        }
+    }
+
+    public void setTrackStops(boolean needTrackStops, int trackBusId) {
+        mNeedTrackStops = needTrackStops;
+        mTrackingStopsBusId = trackBusId;
+    }
+
+    public boolean getNeedTrackStops() {
+        return mNeedTrackStops;
+    }
+
+    public int getTrackingStopsBusId() {
+        return mTrackingStopsBusId;
+    }
+
     protected TrackingParams(Parcel in) {
         this();
         in.readStringList(mBusNames);
         in.readStringList(mBusTypes);
         mStopName = in.readString();
         mRouteName = in.readString();
+        mTrackingStopsBusId = in.readInt();
+        setTrackStops(in.readByte() == 1, mTrackingStopsBusId);
     }
 
     public static final Creator<TrackingParams> CREATOR = new Creator<TrackingParams>() {
@@ -71,21 +116,28 @@ public class TrackingParams implements Parcelable {
         dest.writeStringList(mBusTypes);
         dest.writeString(mStopName);
         dest.writeString(mRouteName);
+        dest.writeInt(mTrackingStopsBusId);
+        byte b = 0;
+        if (getNeedTrackStops()) {
+            b = 1;
+        }
+        dest.writeByte(b);
+        dest.writeInt(mTrackingStopsBusId);
     }
 
-    public String getRouteName(){
+    public String getRouteName() {
         return mRouteName;
     }
 
-    public String getStopName(){
+    public String getStopName() {
         return mStopName;
     }
 
-    public ArrayList<String> getBusNames(){
+    public ArrayList<String> getBusNames() {
         return mBusNames;
     }
 
-    public ArrayList<String> getBusTypes(){
+    public ArrayList<String> getBusTypes() {
         return mBusTypes;
     }
 }

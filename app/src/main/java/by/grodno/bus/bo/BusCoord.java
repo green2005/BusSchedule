@@ -31,8 +31,8 @@ public class BusCoord {
         rid = jo.optInt("rid");
     }
 
-    public float getSpeed() {
-        return speed;
+    public int getId() {
+        return id;
     }
 
 

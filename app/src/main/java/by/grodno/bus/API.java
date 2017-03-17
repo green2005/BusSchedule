@@ -16,10 +16,13 @@ public class API {
 
     public static final String ROUTES_URL = API_SOURCE + "/php/getRoutes.php?city=" + CITY_NAME;
     public static final String STATIONS_URL = API_SOURCE + "/php/getStations.php?city=" + CITY_NAME;
-    private static final String ROUTE_NODES_URL = API_SOURCE+"/php/getRouteNodes.php?city="+CITY_NAME+"&type=0&rid=";
+    private static final String ROUTE_NODES_URL = API_SOURCE + "/php/getRouteNodes.php?city=" + CITY_NAME + "&type=0&rid=";
 
     private static final String TRACKING_PREFIX = API_SOURCE + "/php/getVehiclesMarkers.php?rids=";
     private static final String TRACKING_POSTFIX = "&lat0=0&lng0=0&lat1=90&lng1=180&curk=0&city=" + CITY_NAME;
+
+    //https://bus.ap1.by/php/getVehicleForecasts.php?vid=238&type=0&city=grodno&info=01234&_=1484685670016
+    private static final String STOPS_ROUTE_TRACKING = API_SOURCE + "/php/getVehicleForecasts.php?type=0&city=" + CITY_NAME + "&vid=";
 
     public static final String getRoutesUrl(List<Integer> busIds) {
         String ids = "";
@@ -33,7 +36,13 @@ public class API {
         return TRACKING_PREFIX + ids + TRACKING_POSTFIX;
     }
 
-    public static final String getRouteNodesUrl(int busId){
+    public static final String getRouteStopsUrl(int vId) {
+        return STOPS_ROUTE_TRACKING + vId;
+    }
+
+    public static final String getRouteNodesUrl(int busId) {
         return ROUTE_NODES_URL + busId;
     }
+
+
 }

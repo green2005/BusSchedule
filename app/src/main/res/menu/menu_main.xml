@@ -15,5 +15,10 @@
         app:showAsAction="always|collapseActionView"
         app:actionViewClass="android.support.v7.widget.SearchView" />
 
+    <item
+        android:id="@+id/action_map"
+        android:title="@string/map"
+        android:icon="@android:drawable/ic_dialog_map"
+        app:showAsAction="always|collapseActionView"/>
 
 </menu>

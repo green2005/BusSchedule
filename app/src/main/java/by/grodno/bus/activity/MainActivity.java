@@ -26,6 +26,7 @@ import by.grodno.bus.ErrorHelper;
 import by.grodno.bus.R;
 import by.grodno.bus.TabItem;
 import by.grodno.bus.TabsPagerAdapter;
+import by.grodno.bus.TrackingParams;
 import by.grodno.bus.adapters.SearchAdapter;
 import by.grodno.bus.db.DBManager;
 import by.grodno.bus.db.DBUpdater;
@@ -113,8 +114,6 @@ public class MainActivity extends ActionBarActivity implements android.support.v
     private void initTabs() {
         mActionBar = getSupportActionBar();
         mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-
 
         ActionBar.Tab tab;
         String firstItem = getFirstItem();
@@ -208,6 +207,22 @@ public class MainActivity extends ActionBarActivity implements android.support.v
                 return true;
             }
         });
+        MenuItem mapItem = menu.findItem(R.id.action_map);
+        if (mapItem != null) {
+            mapItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    Intent intent = new Intent(MainActivity.this, GoogleMapsActivity.class);
+                    //TrackingParams params = new TrackingParams("", "", "", "");
+                 //   Bundle b = new Bundle();
+                   // b.putParcelable(TrackingParams.KEY, params);
+                 //   intent.putExtras(b);
+                    startActivity(intent);
+                    return true;
+                }
+            });
+        }
+
         MenuItem searchItem = menu.findItem(R.id.action_search);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             searchItem.setVisible(false);
