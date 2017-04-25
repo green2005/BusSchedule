@@ -394,10 +394,10 @@ public class MapManager {
                 Rect bounds = new Rect();
                 paint.getTextBounds(num, 0, num.length(), bounds);
                 int x = mbmp.getWidth() / 2 - bounds.width() / 2;
-                int y = (int) ((mbmp.getHeight() / 2) -  (paint.descent() + paint.ascent()) / 2) ;
+                int y = (int) ((mbmp.getHeight() / 2) - (paint.descent() + paint.ascent()) / 2);
 
                 canvas.rotate(-rotation, mbmp.getWidth() / 2, mbmp.getHeight() / 2);
-                canvas.drawText(num, x, y , paint);
+                canvas.drawText(num, x, y, paint);
                 markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mbmp));
                 markerOptions.position(busCoords);
 
@@ -416,6 +416,5 @@ public class MapManager {
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 12);
         mMap.animateCamera(cameraUpdate);
     }
-
 
 }
